@@ -1,0 +1,14 @@
+body{overflow-x:hidden;transition:background-color .9s ease}
+section{position:relative}
+.tr-pre{opacity:0}
+.tr-slide{animation:trs .85s cubic-bezier(.2,.7,.2,1) both}
+@keyframes trs{from{opacity:0;transform:translateX(var(--dx,-70px));filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+.tr-iris{animation:tri 1.1s cubic-bezier(.3,.7,.2,1) both}
+@keyframes tri{from{clip-path:circle(0% at var(--cx,50%) 30%)}to{clip-path:circle(150% at var(--cx,50%) 30%)}}
+.tr-curtain{overflow:hidden}
+.curtain{position:absolute;inset:0;z-index:5;background:linear-gradient(120deg,#FF9FC8,#6D28D9);transform-origin:top;animation:trc .9s .15s cubic-bezier(.7,0,.2,1) forwards}
+@keyframes trc{to{transform:scaleY(0)}}
+.ticker{overflow:hidden;white-space:nowrap;margin:0 calc(50% - 50vw);background:linear-gradient(90deg,#FF9FC8,#B58CF5);padding:10px 0;border-block:1px solid #3B0764}
+.ticker .track{display:inline-block;padding-left:100%;animation:tick 30s linear infinite;font:600 15px var(--body);color:#3B0764}
+@keyframes tick{to{transform:translateX(-100%)}}
+@media(prefers-reduced-motion:reduce){.ticker .track{animation:none;padding-left:0}}
