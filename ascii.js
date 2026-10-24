@@ -33,7 +33,7 @@ function size(){
 }
 function draw(now){
   var el=reduce?9999:now-t0,t=reduce?.5:(now-mt)/1000,m=inside&&cur>=0?modes[cur]:null,pc=[];
-  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#FFD6E6';ctx.fillRect(0,0,W,H);
   ctx.font=(ch*.9)+'px "Courier New",monospace';ctx.textBaseline='top';
   for(var y=0;y<rows;y++)for(var x=0;x<COLS;x++){
     var i=y*COLS+x,l=lum[i],st=m?m.f(x,y,t,i,now):0,c,k;
