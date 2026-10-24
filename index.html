@@ -186,60 +186,6 @@ footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);f
   <footer>Roshan Kumar Jha, CSIT student at Dronacharya Group of Institutions, Greater Noida.</footer>
 </div>
 
-<script>
-/* ASCII portrait: resolves from noise on load, shimmers, and reveals the real photo under the cursor. */
-(function(){
-  var art=document.getElementById('art'),cv=document.getElementById('cv'),hint=document.getElementById('hint');
-  var ctx=cv.getContext('2d'),img=new Image(),ramp=' .,:;-=+*#%@';
-  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var COLS=64,W,H,cw,ch,rows,lum=[],delay=[],dpr=Math.min(devicePixelRatio||1,2),mx=-999,my=-999,t0=0,photo;
-  function fail(){art.classList.add('fallback');hint.style.display='none'}
-  function size(){
-    var r=art.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;
-    cw=W/COLS;ch=cw*1.75;rows=Math.ceil(H/ch);
-    var o=document.createElement('canvas');o.width=COLS;o.height=rows;
-    var oc=o.getContext('2d');oc.drawImage(img,0,0,COLS,rows);
-    var d=oc.getImageData(0,0,COLS,rows).data;lum=[];delay=[];
-    for(var i=0;i<COLS*rows;i++){
-      var l=(0.299*d[i*4]+0.587*d[i*4+1]+0.114*d[i*4+2])/255;
-      lum.push(Math.min(1,Math.max(0,(1-l)*1.25)));
-      delay.push(Math.random()*900);
-    }
-  }
-  function draw(now){
-    var el=reduce?9999:now-t0;
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
-    ctx.font=(ch*0.9)+'px "Courier New",monospace';ctx.textBaseline='top';
-    var rad=Math.min(W,H)*0.22;
-    for(var y=0;y<rows;y++)for(var x=0;x<COLS;x++){
-      var i=y*COLS+x,px=x*cw,py=y*ch,l=lum[i],k;
-      if(el<delay[i]+400){k=Math.floor(Math.random()*ramp.length)}
-      else{k=Math.round(l*(ramp.length-1));if(!reduce&&Math.random()<0.04)k=Math.max(0,Math.min(ramp.length-1,k+(Math.random()<.5?-1:1)))}
-      var ch_=ramp[k];if(ch_===' ')continue;
-      ctx.fillStyle=l>0.62?'#12161C':'#2747F0';
-      ctx.fillText(ch_,px,py);
-    }
-    var dx=mx,dy=my;
-    if(dx>-500){
-      ctx.save();ctx.beginPath();ctx.arc(dx,dy,rad,0,6.2832);ctx.clip();
-      ctx.drawImage(img,0,0,W,H);ctx.restore();
-      ctx.strokeStyle='#2747F0';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(dx,dy,rad,0,6.2832);ctx.stroke();
-    }
-    if(!reduce)requestAnimationFrame(draw);
-  }
-  function move(e){var r=art.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;hint.style.opacity=0;if(reduce)draw(0)}
-  function leave(){mx=-999;my=-999;if(reduce)draw(0)}
-  img.onload=function(){
-    try{size();ctx.getImageData(0,0,1,1)}catch(e){return fail()}
-    t0=performance.now();
-    art.addEventListener('pointermove',move);art.addEventListener('pointerleave',leave);
-    addEventListener('resize',function(){size();if(reduce)draw(0)});
-    requestAnimationFrame(draw);
-  };
-  img.onerror=fail;
-  photo=art.querySelector('img');img.src=photo.getAttribute('src');
-})();
-</script>
+<script src="ascii.js"></script>
 </body>
 </html>
