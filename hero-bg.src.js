@@ -1,11 +1,8 @@
-import { background, swell, drift, halo, caustics, contour, ripple, mesh, interference, constellation, cascade, fluid, wordField } from 'asciify-engine/kit';
+import { background, swell } from 'asciify-engine/kit';
 
 const host = document.getElementById('hero-bg');
 if (host) {
-  const presets = [drift, halo, caustics, contour, ripple, mesh, interference, constellation, cascade, fluid, swell, wordField];
-  let i = Math.floor(Math.random() * presets.length);
-
-  // Keep the field quiet right behind the hero text, buttons and portrait.
+  // Keep the waves quiet right behind the hero text, buttons and portrait.
   let rects = [], dirty = true;
   const range = document.createRange();
   const read = () => {
@@ -21,18 +18,11 @@ if (host) {
   new ResizeObserver(mark).observe(document.body);
   document.fonts?.addEventListener('loadingdone', mark);
 
-  const bg = background(host, {
-    preset: presets[i],
+  background(host, {
+    preset: swell,
+    mark: 'glyph',            // characters instead of dots
     clear: read, clearPadding: 6, clearSoftness: 30,
     palette: { light: '#A855F7', dark: '#E879F9' },
-    opacity: 0.55,
-    text: 'ROSHAN',
+    opacity: 0.7,
   });
-
-  // Every 14s, cross-fade to a different preset.
-  setInterval(() => {
-    if (document.hidden) return;
-    i = (i + 1 + Math.floor(Math.random() * (presets.length - 1))) % presets.length;
-    bg.setPreset(presets[i]);
-  }, 14000);
 }
