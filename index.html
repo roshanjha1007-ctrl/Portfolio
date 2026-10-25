@@ -380,26 +380,49 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
     </div>
   </section>
 
-  <section id="highlights">
-    <h2>Highlights</h2>
+  <section id="highlights" class="highlights-section">
+    <div class="highlights-sidebar">
+      <div class="highlights-title-row">
+        <h2>Highlights</h2>
+        <button id="toggle-highlights-view" class="highlights-view-toggle magnetic" type="button" aria-label="Show all highlights" title="Show all highlights" aria-pressed="false">
+          <svg class="icon-grid" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="2" width="4.5" height="4.5" rx="1"></rect>
+            <rect x="9.5" y="2" width="4.5" height="4.5" rx="1"></rect>
+            <rect x="2" y="9.5" width="4.5" height="4.5" rx="1"></rect>
+            <rect x="9.5" y="9.5" width="4.5" height="4.5" rx="1"></rect>
+          </svg>
+          <svg class="icon-tabs" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="1.5" y="4" width="13" height="8" rx="1.5"></rect>
+            <line x1="5.5" y1="4" x2="5.5" y2="12"></line>
+            <line x1="10.5" y1="4" x2="10.5" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="highlights-tabs" role="tablist" aria-label="Highlight categories">
+        <button type="button" role="tab" class="highlight-tab active" aria-selected="true" data-category="all">All</button>
+        <button type="button" role="tab" class="highlight-tab" aria-selected="false" data-category="leadership">Leadership</button>
+        <button type="button" role="tab" class="highlight-tab" aria-selected="false" data-category="hackathons">Hackathons</button>
+        <button type="button" role="tab" class="highlight-tab" aria-selected="false" data-category="badges">Badges</button>
+      </div>
+    </div>
     <div class="infinite-cards-wrap" id="infinite-cards-wrap" aria-label="Achievements carousel">
       <div class="infinite-cards-track">
         <!-- Set 1 -->
-        <div class="tilt-card"><div class="tilt-card-inner"><dt>Google Student Ambassador 2026</dt><dd>Among the top ambassadors nationally, with the Celestial badge. Runs monthly Gemini product trials on campus.</dd></div></div>
-        <div class="tilt-card"><div class="tilt-card-inner"><dt>AWS Student Builder Campus Leader</dt><dd>Selected as the college's Campus Leader (one seat per college) after qualifying interview.</dd></div></div>
-        <div class="tilt-card"><div class="tilt-card-inner"><dt>Fund My Crazy, IIT Delhi</dt><dd>Invited as a Google Student Ambassador to attend and watch the event, where 10 ideas competed for a ₹1 Crore prize pool.</dd></div></div>
-        <div class="tilt-card"><div class="tilt-card-inner"><dt>IDE Bootcamp 2026</dt><dd>Finalist.</dd></div></div>
-        <div class="tilt-card"><div class="tilt-card-inner"><dt>Hackathons</dt><dd>Top 15 teams at the Dronpratimb college hackathon, participant at the national UIDAI Hackathon, and NeuroNex 2026 at VIT Bhopal.</dd></div></div>
-        <div class="tilt-card"><div class="tilt-card-inner"><dt>Naukri Campus Young Turks 2026</dt><dd>Rank 24,965 out of 4 lakh+ students in Round 1, and qualified for Round 2 in the Coding track.</dd></div></div>
-        <div class="tilt-card"><div class="tilt-card-inner"><dt>Credly Badges</dt><dd>60+ verified skill badges across Google Cloud, AI/ML and software development.</dd></div></div>
+        <div class="tilt-card" data-category="leadership"><div class="tilt-card-inner"><dt>Google Student Ambassador 2026</dt><dd>Among the top ambassadors nationally, with the Celestial badge. Runs monthly Gemini product trials on campus.</dd></div></div>
+        <div class="tilt-card" data-category="leadership"><div class="tilt-card-inner"><dt>AWS Student Builder Campus Leader</dt><dd>Selected as the college's Campus Leader (one seat per college) after qualifying interview.</dd></div></div>
+        <div class="tilt-card" data-category="leadership"><div class="tilt-card-inner"><dt>Fund My Crazy, IIT Delhi</dt><dd>Invited as a Google Student Ambassador to attend and watch the event, where 10 ideas competed for a ₹1 Crore prize pool.</dd></div></div>
+        <div class="tilt-card" data-category="hackathons"><div class="tilt-card-inner"><dt>IDE Bootcamp 2026</dt><dd>Finalist with <a href="https://health-bridge-frontend-rosy.vercel.app/login" target="_blank" rel="noopener noreferrer" class="highlight-project-link" aria-label="Open HealthBridge project website (opens in new tab)">HealthBridge <span class="arrow" aria-hidden="true">↗</span></a>.</dd></div></div>
+        <div class="tilt-card" data-category="hackathons"><div class="tilt-card-inner"><dt>Hackathons</dt><dd>Top 15 teams at the Dronpratimb college hackathon, participant at the national UIDAI Hackathon, and NeuroNex 2026 at VIT Bhopal.</dd></div></div>
+        <div class="tilt-card" data-category="hackathons"><div class="tilt-card-inner"><dt>Naukri Campus Young Turks 2026</dt><dd>Rank 24,965 out of 4 lakh+ students in Round 1, and qualified for Round 2 in the Coding track.</dd></div></div>
+        <div class="tilt-card" data-category="badges"><div class="tilt-card-inner"><dt>Credly Badges</dt><dd>60+ verified skill badges across Google Cloud, AI/ML and software development.</dd></div></div>
         <!-- Set 2 (for seamless infinite loop) -->
-        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Google Student Ambassador 2026</dt><dd>Among the top ambassadors nationally, with the Celestial badge. Runs monthly Gemini product trials on campus.</dd></div></div>
-        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>AWS Student Builder Campus Leader</dt><dd>Selected as the college's Campus Leader (one seat per college) after qualifying interview.</dd></div></div>
-        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Fund My Crazy, IIT Delhi</dt><dd>Invited as a Google Student Ambassador to attend and watch the event, where 10 ideas competed for a ₹1 Crore prize pool.</dd></div></div>
-        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>IDE Bootcamp 2026</dt><dd>Finalist.</dd></div></div>
-        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Hackathons</dt><dd>Top 15 teams at the Dronpratimb college hackathon, participant at the national UIDAI Hackathon, and NeuroNex 2026 at VIT Bhopal.</dd></div></div>
-        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Naukri Campus Young Turks 2026</dt><dd>Rank 24,965 out of 4 lakh+ students in Round 1, and qualified for Round 2 in the Coding track.</dd></div></div>
-        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Credly Badges</dt><dd>60+ verified skill badges across Google Cloud, AI/ML and software development.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true" data-category="leadership"><div class="tilt-card-inner"><dt>Google Student Ambassador 2026</dt><dd>Among the top ambassadors nationally, with the Celestial badge. Runs monthly Gemini product trials on campus.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true" data-category="leadership"><div class="tilt-card-inner"><dt>AWS Student Builder Campus Leader</dt><dd>Selected as the college's Campus Leader (one seat per college) after qualifying interview.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true" data-category="leadership"><div class="tilt-card-inner"><dt>Fund My Crazy, IIT Delhi</dt><dd>Invited as a Google Student Ambassador to attend and watch the event, where 10 ideas competed for a ₹1 Crore prize pool.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true" data-category="hackathons"><div class="tilt-card-inner"><dt>IDE Bootcamp 2026</dt><dd>Finalist with <a href="https://health-bridge-frontend-rosy.vercel.app/login" target="_blank" rel="noopener noreferrer" class="highlight-project-link" aria-label="Open HealthBridge project website (opens in new tab)" tabindex="-1">HealthBridge <span class="arrow" aria-hidden="true">↗</span></a>.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true" data-category="hackathons"><div class="tilt-card-inner"><dt>Hackathons</dt><dd>Top 15 teams at the Dronpratimb college hackathon, participant at the national UIDAI Hackathon, and NeuroNex 2026 at VIT Bhopal.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true" data-category="hackathons"><div class="tilt-card-inner"><dt>Naukri Campus Young Turks 2026</dt><dd>Rank 24,965 out of 4 lakh+ students in Round 1, and qualified for Round 2 in the Coding track.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true" data-category="badges"><div class="tilt-card-inner"><dt>Credly Badges</dt><dd>60+ verified skill badges across Google Cloud, AI/ML and software development.</dd></div></div>
       </div>
     </div>
   </section>
@@ -423,8 +446,7 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
   </section>
 
   <footer class="site-footer">
-    <div>Roshan Kumar Jha, CSIT student at Dronacharya Group of Institutions, Greater Noida.</div>
-    <div class="credits">UI inspired by React Bits, Magic UI, Motion Primitives, Aceternity UI, Uiverse and Asciify.</div>
+    <div>Roshan Kumar Jha, Computer Science & Information Technology student at Dronacharya Group of Institutions, Greater Noida.</div>
   </footer>
 </div>
 

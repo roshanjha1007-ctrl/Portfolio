@@ -755,6 +755,9 @@
     var wrap = document.getElementById('infinite-cards-wrap');
     if (!wrap) return;
 
+    var section = document.getElementById('highlights');
+    var toggleBtn = document.getElementById('toggle-highlights-view');
+    var tabBtns = document.querySelectorAll('.highlight-tab');
     var track = wrap.querySelector('.infinite-cards-track');
     var cards = wrap.querySelectorAll('.tilt-card');
     if (!track || cards.length === 0) return;
@@ -762,6 +765,8 @@
     var posX = 0;
     var speed = 0.65;
     var isPaused = false;
+    var isGrid = false;
+    var currentFilter = 'all';
     var halfWidth = track.scrollWidth / 2;
 
     wrap.addEventListener('mouseenter', function () { isPaused = true; });
@@ -792,10 +797,72 @@
       });
     }
 
+    function applyFilter(filter) {
+      currentFilter = filter;
+      tabBtns.forEach(function (btn) {
+        var match = btn.dataset.category === filter;
+        btn.classList.toggle('active', match);
+        btn.setAttribute('aria-selected', match ? 'true' : 'false');
+      });
+
+      cards.forEach(function (card) {
+        var isDuplicate = card.getAttribute('aria-hidden') === 'true';
+        if (isGrid && isDuplicate) {
+          card.style.display = 'none';
+          return;
+        }
+        var cat = card.dataset.category;
+        var show = (filter === 'all' || cat === filter);
+        card.style.display = show ? '' : 'none';
+      });
+
+      halfWidth = track.scrollWidth / 2;
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function () {
+        isGrid = !isGrid;
+        if (section) section.classList.toggle('view-grid', isGrid);
+        toggleBtn.classList.toggle('active', isGrid);
+        toggleBtn.setAttribute('aria-pressed', isGrid ? 'true' : 'false');
+        toggleBtn.setAttribute('aria-label', isGrid ? 'Show tabs view' : 'Show all highlights');
+        toggleBtn.setAttribute('title', isGrid ? 'Show tabs view' : 'Show all highlights');
+
+        if (isGrid) {
+          // In grid mode, display ALL highlights together in a clean responsive grid
+          applyFilter('all');
+          track.style.transform = '';
+        } else {
+          // Returning to tabbed / carousel view
+          applyFilter(currentFilter);
+          posX = 0;
+          halfWidth = track.scrollWidth / 2;
+        }
+      });
+    }
+
+    tabBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var cat = btn.dataset.category;
+        if (isGrid) {
+          isGrid = false;
+          if (section) section.classList.remove('view-grid');
+          if (toggleBtn) {
+            toggleBtn.classList.remove('active');
+            toggleBtn.setAttribute('aria-pressed', 'false');
+            toggleBtn.setAttribute('aria-label', 'Show all highlights');
+            toggleBtn.setAttribute('title', 'Show all highlights');
+          }
+          posX = 0;
+        }
+        applyFilter(cat);
+      });
+    });
+
     if (reduceMotion) return;
 
     function loopTrack() {
-      if (!isPaused) {
+      if (!isPaused && !isGrid) {
         posX -= speed;
         if (Math.abs(posX) >= halfWidth) {
           posX = 0;
