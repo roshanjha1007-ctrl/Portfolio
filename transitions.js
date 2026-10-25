@@ -303,9 +303,43 @@
       }
     }, { passive: true });
 
+    function drawStaticParticles() {
+      if (!ctx || particles.length === 0) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cw, ch);
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.ox, p.oy, p.size, p.size);
+      }
+    }
+
+    if (reduceMotion) {
+      drawStaticParticles();
+      return;
+    }
+
+    var isVisible = true;
+    var rafId = null;
+
+    if ('IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function (entries) {
+        isVisible = entries[0].isIntersecting;
+        if (isVisible && !rafId) {
+          rafId = requestAnimationFrame(renderParticles);
+        }
+      }, { threshold: 0.05 });
+      obs.observe(wrap);
+    }
+
     function renderParticles(time) {
+      if (!isVisible) {
+        rafId = null;
+        return;
+      }
+
       if (!ctx || particles.length === 0) {
-        requestAnimationFrame(renderParticles);
+        rafId = requestAnimationFrame(renderParticles);
         return;
       }
 
@@ -346,17 +380,17 @@
         ctx.fillRect(p.x, p.y, p.size, p.size);
       }
 
-      requestAnimationFrame(renderParticles);
+      rafId = requestAnimationFrame(renderParticles);
     }
 
-    requestAnimationFrame(renderParticles);
+    rafId = requestAnimationFrame(renderParticles);
   }
 
   /* ============================================================
      5. REACT BITS: VariableProximity
      ============================================================ */
   function initVariableProximity() {
-    if (isTouch) return; // Fallback gracefully on touch devices
+    if (isTouch || reduceMotion) return; // Fallback gracefully on touch devices or reduced motion
 
     var targets = document.querySelectorAll('.about p, .tag p, #projects p, #highlights dd, #highlights dt, .row small, section h2');
     var words = [];
@@ -384,8 +418,8 @@
           words.push({
             el: span,
             baseWeight: baseWeight,
-            cx: 0,
-            cy: 0,
+            pageX: 0,
+            pageY: 0,
             active: false
           });
         }
@@ -399,15 +433,16 @@
     var ticking = false;
 
     function measureWordCenters() {
+      var scrollX = window.scrollX || window.pageXOffset;
+      var scrollY = window.scrollY || window.pageYOffset;
       for (var i = 0; i < words.length; i++) {
         var rect = words[i].el.getBoundingClientRect();
-        words[i].cx = rect.left + rect.width / 2;
-        words[i].cy = rect.top + rect.height / 2;
+        words[i].pageX = rect.left + scrollX + rect.width / 2;
+        words[i].pageY = rect.top + scrollY + rect.height / 2;
       }
     }
 
     window.addEventListener('resize', measureWordCenters);
-    window.addEventListener('scroll', measureWordCenters, { passive: true });
     setTimeout(measureWordCenters, 300);
 
     window.addEventListener('mousemove', function (e) {
@@ -423,11 +458,15 @@
     function updateVariableProximity() {
       ticking = false;
       var rSq = radius * radius;
+      var scrollX = window.scrollX || window.pageXOffset;
+      var scrollY = window.scrollY || window.pageYOffset;
 
       for (var i = 0; i < words.length; i++) {
         var item = words[i];
-        var dx = item.cx - mouse.x;
-        var dy = item.cy - mouse.y;
+        var cx = item.pageX - scrollX;
+        var cy = item.pageY - scrollY;
+        var dx = cx - mouse.x;
+        var dy = cy - mouse.y;
         var distSq = dx * dx + dy * dy;
 
         if (distSq < rSq) {
@@ -449,7 +488,7 @@
      6. REACT BITS: TargetCursor
      ============================================================ */
   function initTargetCursor() {
-    if (isTouch) return;
+    if (isTouch || reduceMotion) return;
 
     var cursor = document.getElementById('target-cursor');
     if (!cursor) return;
@@ -475,7 +514,7 @@
     });
 
     function setupTargets() {
-      var targets = document.querySelectorAll('a, button, #art, .row, .theme-toggle, #particle-canvas, .bento-card, .tilt-card, .shape-btn');
+      var targets = document.querySelectorAll('a, button, #art, .row, .theme-toggle, #particle-canvas, .bento-card, .tilt-card');
       targets.forEach(function (el) {
         el.addEventListener('mouseenter', function () {
           lockedEl = el;
@@ -527,17 +566,15 @@
   }
 
   /* ============================================================
-     7. SCROLL ANIMATIONS: Parallax, Dynamic Speed & Motion Blur
+     7. SCROLL ANIMATIONS: Parallax, Dynamic Speed Skew & Entrance Reveal
      ============================================================ */
   function initScrollSystem() {
     var heroText = document.querySelector('.hero > div:first-child');
     var art = document.getElementById('art');
     var heroBg = document.getElementById('hero-bg');
-    var sectionTitles = document.querySelectorAll('section h2');
-    var cards = document.querySelectorAll('.row');
     var sections = document.querySelectorAll('section');
 
-    // Section Entrance Reveal (fade, translate, blur-to-sharp)
+    // Section Entrance Reveal (fade, translate)
     sections.forEach(function (sec) {
       sec.classList.add('scroll-reveal');
     });
@@ -560,7 +597,7 @@
       });
     }
 
-    if (reduceMotion) return;
+    if (isTouch || reduceMotion) return;
 
     var lastScrollY = window.scrollY || window.pageYOffset;
     var smoothVelocity = 0;
@@ -574,65 +611,35 @@
       smoothVelocity += (rawVelocity - smoothVelocity) * 0.16;
       if (Math.abs(smoothVelocity) < 0.05) smoothVelocity = 0;
 
-      // 1. High Motion Blur: proportional to velocity, clamped 0 - 12px
-      var blurPx = Math.min(12, Math.abs(smoothVelocity) * 0.32);
+      // Dynamic Speed Skew
+      var skewY = Math.max(-3, Math.min(3, smoothVelocity * 0.05));
 
-      // 2. Dynamic Speed Skew & Stretch
-      var skewY = Math.max(-3.5, Math.min(3.5, smoothVelocity * 0.06));
-      var stretchY = 1 + Math.min(0.04, Math.abs(smoothVelocity) * 0.001);
-
-      // Apply blur to moving layers
-      var blurFilter = blurPx > 0.2 ? 'blur(' + blurPx.toFixed(1) + 'px)' : 'none';
-
-      // 3. Parallax Layer: Hero text
-      if (heroText) {
-        var heroTextOffset = -currentScrollY * 0.42;
-        var heroTextOpacity = Math.max(0, 1 - currentScrollY * 0.0022);
-        heroText.style.transform = 'translate3d(0, ' + heroTextOffset.toFixed(1) + 'px, 0) skewY(' + (skewY * 0.4).toFixed(2) + 'deg)';
-        heroText.style.opacity = heroTextOpacity.toFixed(2);
-        heroText.style.filter = blurFilter;
-      }
-
-      // 4. Parallax Layer: Portrait (moves slower than text, scales & rotates with velocity, drifts into next section)
-      if (art) {
-        var artOffset = currentScrollY * 0.28;
-        var scrollProgress = Math.min(1, currentScrollY / (window.innerHeight * 0.8));
-        var rotateDeg = Math.max(-2.5, Math.min(2.5, smoothVelocity * 0.035));
-        var scale = Math.max(0.82, 1 - scrollProgress * 0.14) * (1 + Math.min(0.03, Math.abs(smoothVelocity) * 0.0008));
-        var mildBlur = Math.min(5, Math.abs(smoothVelocity) * 0.16);
-        var artFilter = mildBlur > 0.2 ? 'blur(' + mildBlur.toFixed(1) + 'px)' : 'none';
-
-        art.style.transform = 'translate3d(0, ' + artOffset.toFixed(1) + 'px, 0) scale(' + scale.toFixed(3) + ') rotate(' + rotateDeg.toFixed(2) + 'deg)';
-        art.style.filter = artFilter;
-      }
-
-      // 5. Parallax Layer: Waves background
-      if (heroBg) {
-        var bgOffset = currentScrollY * 0.22;
-        heroBg.style.transform = 'translate3d(0, ' + bgOffset.toFixed(1) + 'px, 0)';
-      }
-
-      // 6. Parallax Layer: Section Titles
-      sectionTitles.forEach(function (title) {
-        var rect = title.getBoundingClientRect();
-        var centerOffset = (window.innerHeight / 2 - (rect.top + rect.height / 2)) * 0.08;
-        title.style.transform = 'translate3d(0, ' + centerOffset.toFixed(1) + 'px, 0) skewY(' + (skewY * 0.2).toFixed(2) + 'deg)';
-        title.style.filter = blurFilter;
-      });
-
-      // 7. Parallax Layer: Cards & Rows
-      cards.forEach(function (card, index) {
-        var factor = (index % 2 === 0 ? 0.05 : -0.05);
-        var r = card.getBoundingClientRect();
-        if (r.top < window.innerHeight && r.bottom > 0) {
-          var offset = (window.innerHeight / 2 - (r.top + r.height / 2)) * factor;
-          card.style.transform = 'translate3d(0, ' + offset.toFixed(1) + 'px, 0)';
+      // Parallax Layer: Hero text & Portrait (only when hero is near viewport)
+      if (currentScrollY < window.innerHeight * 1.25) {
+        if (heroText) {
+          var heroTextOffset = -currentScrollY * 0.35;
+          var heroTextOpacity = Math.max(0, 1 - currentScrollY * 0.0022);
+          heroText.style.transform = 'translate3d(0, ' + heroTextOffset.toFixed(1) + 'px, 0) skewY(' + (skewY * 0.3).toFixed(2) + 'deg)';
+          heroText.style.opacity = heroTextOpacity.toFixed(2);
         }
-      });
 
-      // 8. TextLoop velocity boosting
+        if (art) {
+          var artOffset = currentScrollY * 0.22;
+          var scrollProgress = Math.min(1, currentScrollY / (window.innerHeight * 0.8));
+          var rotateDeg = Math.max(-2, Math.min(2, smoothVelocity * 0.025));
+          var scale = Math.max(0.85, 1 - scrollProgress * 0.12);
+          art.style.transform = 'translate3d(0, ' + artOffset.toFixed(1) + 'px, 0) scale(' + scale.toFixed(3) + ') rotate(' + rotateDeg.toFixed(2) + 'deg)';
+        }
+
+        if (heroBg) {
+          var bgOffset = currentScrollY * 0.18;
+          heroBg.style.transform = 'translate3d(0, ' + bgOffset.toFixed(1) + 'px, 0)';
+        }
+      }
+
+      // TextLoop velocity boosting
       if (textLoopState.trackEl && textLoopState.halfWidth > 0) {
-        var effectiveSpeed = (textLoopState.baseSpeed + Math.abs(smoothVelocity) * 0.42) * textLoopState.hoverMultiplier;
+        var effectiveSpeed = (textLoopState.baseSpeed + Math.abs(smoothVelocity) * 0.35) * textLoopState.hoverMultiplier;
         textLoopState.x -= effectiveSpeed;
         if (Math.abs(textLoopState.x) >= textLoopState.halfWidth) {
           textLoopState.x += textLoopState.halfWidth;
@@ -647,49 +654,45 @@
   }
 
   /* ============================================================
-     8. SHAPE SWITCHER & SCROLL MORPH (Arch -> Circle)
+     8. MOBILE NAVIGATION TOGGLE
      ============================================================ */
-  function initShapeSwitcher() {
-    var backdrop = document.getElementById('portrait-backdrop');
-    var buttons = document.querySelectorAll('.shape-btn');
-    if (!backdrop || buttons.length === 0) return;
+  function initNavToggle() {
+    var toggleBtn = document.getElementById('nav-toggle');
+    var links = document.getElementById('nav-links');
+    if (!toggleBtn || !links) return;
 
-    var manualShape = null;
+    function toggleMenu(open) {
+      var isOpen = (typeof open === 'boolean') ? open : !toggleBtn.classList.contains('open');
+      toggleBtn.classList.toggle('open', isOpen);
+      links.classList.toggle('open', isOpen);
+      toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
 
-    buttons.forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var shape = btn.getAttribute('data-shape');
-        manualShape = shape;
-        setShape(shape);
+    toggleBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleMenu();
+    });
+
+    // Close when clicking any nav link
+    links.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        toggleMenu(false);
       });
     });
 
-    function setShape(shape) {
-      backdrop.className = 'portrait-backdrop shape-' + shape;
-      buttons.forEach(function (b) {
-        if (b.getAttribute('data-shape') === shape) {
-          b.classList.add('active');
-        } else {
-          b.classList.remove('active');
-        }
-      });
-    }
-
-    // Scroll morph: arch -> circle when scrolling down if user has not picked a shape
-    window.addEventListener('scroll', function () {
-      if (manualShape || reduceMotion) return;
-      var scrollY = window.scrollY || window.pageYOffset;
-      if (scrollY > 100) {
-        if (!backdrop.classList.contains('shape-circle')) {
-          setShape('circle');
-        }
-      } else {
-        if (!backdrop.classList.contains('shape-arch')) {
-          setShape('arch');
-        }
+    // Close when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!links.contains(e.target) && !toggleBtn.contains(e.target)) {
+        toggleMenu(false);
       }
-    }, { passive: true });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        toggleMenu(false);
+      }
+    });
   }
 
   /* ============================================================
@@ -698,7 +701,7 @@
   function initMagneticButtons() {
     if (isTouch || reduceMotion) return;
 
-    var magnets = document.querySelectorAll('.magnetic, .links a, .btn-demo, .btn-github, .shape-btn');
+    var magnets = document.querySelectorAll('.magnetic, .links a, .btn-demo, .btn-github');
     var radius = 60;
 
     magnets.forEach(function (el) {
@@ -854,7 +857,24 @@
 
     if (reduceMotion) return;
 
+    var isVisible = true;
+    var rafId = null;
+
+    if ('IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function (entries) {
+        isVisible = entries[0].isIntersecting;
+        if (isVisible && !isPaused && !isGrid && !rafId) {
+          rafId = requestAnimationFrame(loopTrack);
+        }
+      }, { threshold: 0.05 });
+      obs.observe(wrap);
+    }
+
     function loopTrack() {
+      if (!isVisible) {
+        rafId = null;
+        return;
+      }
       if (!isPaused && !isGrid) {
         posX -= speed;
         if (Math.abs(posX) >= halfWidth) {
@@ -862,14 +882,14 @@
         }
         track.style.transform = 'translate3d(' + posX.toFixed(1) + 'px, 0, 0)';
       }
-      requestAnimationFrame(loopTrack);
+      rafId = requestAnimationFrame(loopTrack);
     }
 
     window.addEventListener('resize', function () {
       halfWidth = track.scrollWidth / 2;
     });
 
-    requestAnimationFrame(loopTrack);
+    rafId = requestAnimationFrame(loopTrack);
   }
 
   /* ============================================================
@@ -912,7 +932,7 @@
     initVariableProximity();
     initTargetCursor();
     initScrollSystem();
-    initShapeSwitcher();
+    initNavToggle();
     initMagneticButtons();
     initProgressiveBlur();
     initInfiniteHighlights();

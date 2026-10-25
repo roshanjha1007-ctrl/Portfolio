@@ -1,7 +1,9 @@
 import { background, swell } from 'asciify-engine/kit';
 
 const host = document.getElementById('hero-bg');
-if (host) {
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (host && !reduceMotion) {
   // Keep the waves quiet right behind the hero text, buttons and portrait.
   let rects = [], dirty = true;
   const range = document.createRange();
@@ -12,7 +14,15 @@ if (host) {
     rects.push(...[...document.querySelectorAll('.hero .links a, #portrait-backdrop')].map(el => el.getBoundingClientRect()));
     return rects;
   };
-  const mark = () => { dirty = true; };
+  let markTimer = null;
+  const mark = () => {
+    if (!markTimer) {
+      markTimer = setTimeout(() => {
+        dirty = true;
+        markTimer = null;
+      }, 150);
+    }
+  };
   addEventListener('scroll', mark, { passive: true, capture: true });
   addEventListener('resize', mark);
   new ResizeObserver(mark).observe(document.body);
