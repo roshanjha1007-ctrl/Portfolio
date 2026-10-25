@@ -73,9 +73,4 @@ grep -q hero-bg.js index.html || perl -pi -e 's#</body>#<script type="module" sr
 echo "hero-bg.js size: $(du -h hero-bg.js | cut -f1)"
 echo "index.html references: $(grep -c 'hero-bg' index.html) (3 hona chahiye)"
 
-# 5. Commit and push if this folder is a git repo
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  git add -A
-  git commit -m "Add Asciify hero background" || echo "Kuch naya commit nahi hua."
-  git push
-fi
+# This script only builds local assets. Review and commit the result separately.

@@ -19,6 +19,8 @@
   var RAMP = ' .,:;-=+*#%@';
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isOnScreen = true;
+  var framePending = false;
   var COLS = 84, W = 0, H = 0, cw = 0, ch = 0, rows = 0;
   var lum = [], cellThreshold = [], correctK = [], alphaMask = [];
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -166,7 +168,14 @@
     return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
   }
 
+  function scheduleRender() {
+    if (framePending || !isOnScreen || document.hidden) return;
+    framePending = true;
+    requestAnimationFrame(render);
+  }
+
   function render(now) {
+    framePending = false;
     if (!lastNow) lastNow = now;
     var dt = Math.min((now - lastNow) / 1000, 0.1);
     lastNow = now;
@@ -191,7 +200,6 @@
       ctx.drawImage(img, SX, SY, SW, SH, 0, 0, W, H);
       ctx.globalAlpha = 1.0;
       if (hint) hint.style.opacity = String(Math.max(0, 1 - progress * 1.5));
-      requestAnimationFrame(render);
       return;
     }
 
@@ -243,7 +251,8 @@
       hint.style.opacity = String(Math.max(0, 1 - progress * 1.5));
     }
 
-    requestAnimationFrame(render);
+    // The portrait is static at rest; render again only while diffusion is moving.
+    if (Math.abs(targetProgress - progress) > 0.001) scheduleRender();
   }
 
   var started = false;
@@ -264,11 +273,13 @@
     art.addEventListener('mouseenter', function() {
       clearTimeout(scrollRevealTimer);
       targetProgress = 1;
+      scheduleRender();
     });
 
     art.addEventListener('mouseleave', function() {
       clearTimeout(scrollRevealTimer);
       targetProgress = 0;
+      scheduleRender();
     });
 
     // Touch tap toggle
@@ -276,6 +287,7 @@
       if (e.pointerType === 'touch') {
         clearTimeout(scrollRevealTimer);
         targetProgress = targetProgress > 0.5 ? 0 : 1;
+        scheduleRender();
       }
     });
 
@@ -293,9 +305,11 @@
           if (entry.isIntersecting && entry.intersectionRatio > 0.4 && hasScrolledAway) {
             hasScrolledAway = false;
             targetProgress = 1;
+            scheduleRender();
             clearTimeout(scrollRevealTimer);
             scrollRevealTimer = setTimeout(function() {
               targetProgress = 0;
+              scheduleRender();
             }, 2600);
           }
         });
@@ -305,9 +319,22 @@
 
     window.addEventListener('resize', function() {
       size();
+      if (reduceMotion) render(performance.now());
+      else scheduleRender();
     });
 
-    requestAnimationFrame(render);
+    if ('IntersectionObserver' in window) {
+      var portraitObserver = new IntersectionObserver(function(entries) {
+        isOnScreen = entries[0].isIntersecting;
+        if (isOnScreen) scheduleRender();
+      }, { threshold: 0.01 });
+      portraitObserver.observe(art);
+    }
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && isOnScreen) scheduleRender();
+    });
+
+    scheduleRender();
   }
 
   img.onload = startApp;

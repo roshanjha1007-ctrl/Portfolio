@@ -11,7 +11,7 @@ if (host && !reduceMotion) {
     if (!dirty) return rects;
     dirty = false;
     rects = [...document.querySelectorAll('.hero h1, .hero .tag p')].flatMap(el => { range.selectNodeContents(el); return [...range.getClientRects()]; });
-    rects.push(...[...document.querySelectorAll('.hero .links a, #portrait-backdrop')].map(el => el.getBoundingClientRect()));
+    rects.push(...[...document.querySelectorAll('.hero .links a, .hero-actions > *, #portrait-backdrop')].map(el => el.getBoundingClientRect()));
     return rects;
   };
   let markTimer = null;
@@ -33,7 +33,7 @@ if (host && !reduceMotion) {
     mark: 'glyph',            // characters instead of dots
     clear: read, clearPadding: 6, clearSoftness: 30,
     palette: { light: '#A855F7', dark: '#E879F9' },
-    opacity: 0.7,
+    opacity: 0.34,
   });
 
   const syncTheme = () => {
@@ -43,7 +43,7 @@ if (host && !reduceMotion) {
       mark: 'glyph',
       clear: read, clearPadding: 6, clearSoftness: 30,
       palette: { light: '#A855F7', dark: '#E879F9' },
-      opacity: 0.7,
+      opacity: 0.34,
     });
   };
 

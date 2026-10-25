@@ -147,8 +147,10 @@
     baseSpeed: 1.1,
     hoverMultiplier: 1.0,
     trackEl: null,
-    halfWidth: 0
+    halfWidth: 0,
+    inView: false
   };
+  var scrollLoopScheduler = null;
 
   function initTextLoop() {
     var container = document.getElementById('text-loop');
@@ -160,6 +162,15 @@
 
     textLoopState.trackEl = track;
     textLoopState.halfWidth = contents[0].offsetWidth || (container.scrollWidth / 2);
+    if ('IntersectionObserver' in window) {
+      var loopObserver = new IntersectionObserver(function (entries) {
+        textLoopState.inView = entries[0].isIntersecting;
+        if (textLoopState.inView && scrollLoopScheduler) scrollLoopScheduler();
+      }, { threshold: 0.01 });
+      loopObserver.observe(container);
+    } else {
+      textLoopState.inView = true;
+    }
 
     container.addEventListener('mouseenter', function () {
       textLoopState.hoverMultiplier = 0.25;
@@ -500,10 +511,17 @@
     var currW = 28;
     var currH = 28;
     var lockedEl = null;
+    var cursorFramePending = false;
+    function scheduleCursor() {
+      if (cursorFramePending) return;
+      cursorFramePending = true;
+      requestAnimationFrame(updateCursor);
+    }
 
     window.addEventListener('mousemove', function (e) {
       targetX = e.clientX;
       targetY = e.clientY;
+      scheduleCursor();
     }, { passive: true });
 
     window.addEventListener('mousedown', function () {
@@ -519,11 +537,13 @@
         el.addEventListener('mouseenter', function () {
           lockedEl = el;
           cursor.classList.add('locked');
+          scheduleCursor();
         });
         el.addEventListener('mouseleave', function () {
           if (lockedEl === el) {
             lockedEl = null;
             cursor.classList.remove('locked');
+            scheduleCursor();
           }
         });
       });
@@ -532,6 +552,7 @@
     setupTargets();
 
     function updateCursor() {
+      cursorFramePending = false;
       if (lockedEl) {
         var rect = lockedEl.getBoundingClientRect();
         var padding = 8;
@@ -559,17 +580,19 @@
         cursor.style.height = currH + 'px';
       }
 
-      requestAnimationFrame(updateCursor);
+      var destination = lockedEl ? lockedEl.getBoundingClientRect() : null;
+      var dx = destination ? destination.left + destination.width / 2 - currX : targetX - currX;
+      var dy = destination ? destination.top + destination.height / 2 - currY : targetY - currY;
+      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5 || (destination &&
+          (Math.abs(destination.width + 16 - currW) > 0.5 || Math.abs(destination.height + 16 - currH) > 0.5))) scheduleCursor();
     }
-
-    requestAnimationFrame(updateCursor);
   }
 
   /* ============================================================
      7. SCROLL ANIMATIONS: Parallax, Dynamic Speed Skew & Entrance Reveal
      ============================================================ */
   function initScrollSystem() {
-    var heroText = document.querySelector('.hero > div:first-child');
+    var heroText = document.querySelector('.hero .parallax-layer');
     var art = document.getElementById('art');
     var heroBg = document.getElementById('hero-bg');
     var sections = document.querySelectorAll('section');
@@ -584,6 +607,13 @@
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
             entry.target.classList.add('revealed');
+            var navLink = document.querySelector('.nav-links a[href="#' + entry.target.id + '"]');
+            if (navLink) {
+              document.querySelectorAll('.nav-links a[aria-current="location"]').forEach(function (link) {
+                link.removeAttribute('aria-current');
+              });
+              navLink.setAttribute('aria-current', 'location');
+            }
           }
         });
       }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
@@ -601,6 +631,14 @@
 
     var lastScrollY = window.scrollY || window.pageYOffset;
     var smoothVelocity = 0;
+    var scrollLoopRunning = false;
+
+    function scheduleScrollLoop() {
+      if (scrollLoopRunning) return;
+      scrollLoopRunning = true;
+      requestAnimationFrame(renderScrollLoop);
+    }
+    scrollLoopScheduler = scheduleScrollLoop;
 
     function renderScrollLoop() {
       var currentScrollY = window.scrollY || window.pageYOffset;
@@ -647,10 +685,16 @@
         textLoopState.trackEl.style.transform = 'translate3d(' + textLoopState.x.toFixed(1) + 'px, 0, 0)';
       }
 
-      requestAnimationFrame(renderScrollLoop);
+      if (textLoopState.inView || Math.abs(smoothVelocity) > 0.05) {
+        requestAnimationFrame(renderScrollLoop);
+      } else {
+        scrollLoopRunning = false;
+      }
     }
 
-    requestAnimationFrame(renderScrollLoop);
+    window.addEventListener('scroll', scheduleScrollLoop, { passive: true });
+    window.addEventListener('resize', scheduleScrollLoop, { passive: true });
+    if (textLoopState.inView) scheduleScrollLoop();
   }
 
   /* ============================================================
@@ -799,6 +843,7 @@
         var match = btn.dataset.category === filter;
         btn.classList.toggle('active', match);
         btn.setAttribute('aria-selected', match ? 'true' : 'false');
+        btn.tabIndex = match ? 0 : -1;
       });
 
       cards.forEach(function (card) {
@@ -813,6 +858,23 @@
       });
 
       halfWidth = track.scrollWidth / 2;
+    }
+
+    tabBtns.forEach(function (btn) {
+      btn.tabIndex = btn.dataset.category === currentFilter ? 0 : -1;
+    });
+
+    // WAI-ARIA tabs: arrow keys move focus and activate the matching category.
+    if (wrap.parentElement) {
+      wrap.parentElement.addEventListener('keydown', function (e) {
+        var current = Array.prototype.indexOf.call(tabBtns, document.activeElement);
+        if (current < 0 || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+        e.preventDefault();
+        var next = e.key === 'Home' ? 0 : e.key === 'End' ? tabBtns.length - 1 :
+          (current + (e.key === 'ArrowRight' ? 1 : tabBtns.length - 1)) % tabBtns.length;
+        tabBtns[next].focus();
+        tabBtns[next].click();
+      });
     }
 
     if (toggleBtn) {
@@ -857,7 +919,7 @@
 
     if (reduceMotion) return;
 
-    var isVisible = true;
+    var isVisible = !('IntersectionObserver' in window);
     var rafId = null;
 
     if ('IntersectionObserver' in window) {
@@ -889,7 +951,7 @@
       halfWidth = track.scrollWidth / 2;
     });
 
-    rafId = requestAnimationFrame(loopTrack);
+    if (isVisible) rafId = requestAnimationFrame(loopTrack);
   }
 
   /* ============================================================
@@ -899,7 +961,9 @@
     var emailLinks = document.querySelectorAll('a[href^="mailto:roshanjha1007@gmail.com"], #particle-canvas');
     var toast = document.createElement('div');
     toast.className = 'asciify-toast';
-    toast.innerHTML = '<span class="toast-icon">✦</span><span>[COPIED] roshanjha1007@gmail.com</span>';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.innerHTML = '<span class="toast-icon">✦</span><span>Email copied · roshanjha1007@gmail.com</span>';
     document.body.appendChild(toast);
 
     var toastTimer = null;
