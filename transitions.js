@@ -196,6 +196,7 @@
 
     var ctx = canvas.getContext('2d');
     var text = 'roshanjha1007@gmail.com';
+    var gmailComposeUrl = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(text);
     var particles = [];
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     var cw = 0, ch = 0;
@@ -290,9 +291,7 @@
         p.vy += Math.sin(angle) * force;
       }
 
-      setTimeout(function () {
-        window.location.href = 'mailto:' + text;
-      }, 250);
+      window.open(gmailComposeUrl, '_blank', 'noopener,noreferrer');
     });
 
     // Touch tap support
@@ -958,7 +957,7 @@
      12. ASCIIFY TOAST NOTIFICATION (Email click-to-copy)
      ============================================================ */
   function initEmailToast() {
-    var emailLinks = document.querySelectorAll('a[href^="mailto:roshanjha1007@gmail.com"], #particle-canvas');
+    var emailLinks = document.querySelectorAll('a[href^="https://mail.google.com/mail/"], #particle-canvas');
     var toast = document.createElement('div');
     toast.className = 'asciify-toast';
     toast.setAttribute('role', 'status');
