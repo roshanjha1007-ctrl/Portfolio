@@ -1,3 +1,3 @@
-# Roshan Kumar Jha - Portfolio
+Portfolio
 
 Live at: https://roshanjha1007-ctrl.github.io/Portfolio/
