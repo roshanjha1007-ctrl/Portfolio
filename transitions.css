@@ -1046,9 +1046,6 @@ section { padding-block: var(--space-section); }
 .tilt-card[data-category="hackathons"]:nth-child(6) .tilt-card-inner,
 .tilt-card[data-category="badges"] .tilt-card-inner { opacity: .78; }
 .contact-invitation { margin: 2px 0 18px; color: var(--muted); }
-.contact-email-action { display: inline-flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 20px; border-radius: 999px; background: var(--accent-strong); color: #fff; font: 600 clamp(16px, 2vw, 19px) var(--body); text-decoration: none; transition: transform .2s ease, opacity .2s ease; }
-.contact-email-action:hover { transform: translateY(-2px); opacity: .9; }
-.contact-email-action:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
 .contact .particle-text-wrap { margin-top: 16px; max-width: 520px; height: 56px; }
 .contact #particle-canvas { cursor: default; }
 .contact a.big { display: inline-block; border-bottom-width: 2px; }
