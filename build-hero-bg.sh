@@ -60,9 +60,8 @@ rm -rf "$TMP"
 
 # 3. Styles
 cat > hero-bg.css <<'EOF'
-/* Asciify hero background: full-bleed ground behind the hero, under all content. */
-body{position:relative}
-#hero-bg{position:absolute;top:0;left:0;right:0;height:max(100vh,640px);height:max(100svh,640px);z-index:-1}
+/* Asciify field stays inside the hero and behind its content. */
+#hero-bg{position:absolute;inset:0;height:100%;z-index:-1;pointer-events:none}
 EOF
 
 # 4. Wire it into index.html (safe to run twice)
