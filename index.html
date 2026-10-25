@@ -259,7 +259,6 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
   <div class="tc-bracket tc-br"></div>
 </div>
 
-<div id="hero-bg" aria-hidden="true"></div>
 <div class="wrap">
   <nav aria-label="Main">
     <a href="#" class="nav-logo"><b>Roshan</b></a>
@@ -283,21 +282,26 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
   </nav>
 
   <header class="hero">
+    <div id="hero-bg" aria-hidden="true"></div>
     <div class="parallax-layer">
       <!-- REACT BITS: TechText for hero h1 -->
       <div class="tech-text-wrap">
         <h1 class="tech-text" data-text="Roshan Kumar Jha" aria-label="Roshan Kumar Jha"><span class="word">Roshan</span> <span class="word">Kumar</span> <span class="word">Jha</span></h1>
       </div>
       <div class="tag">
-        <p>Too curious to wait for the right time, so I start building.</p>
+        <p class="hero-lead">Curious by nature. Building from rough ideas to refined experiences.</p>
         <p>CSIT student, Google Student Ambassador and hackathon builder working across AI and product.</p>
       </div>
-      <div class="links">
-        <a class="main magnetic" href="https://www.linkedin.com/in/roshanjha1007/" rel="me noopener">LinkedIn</a>
-        <a class="magnetic" href="https://github.com/roshanjha1007-ctrl" rel="me noopener">GitHub</a>
-        <a class="magnetic" href="https://www.skills.google/public_profiles/3627ba7f-261a-465a-b769-d2da955b5581" rel="me noopener">Google Skills</a>
-        <a class="magnetic" href="https://www.credly.com/users/roshanjha1007/badges" rel="me noopener">Credly</a>
-        <a class="magnetic" href="https://leetcode.com/u/roshanjha_1007/" rel="me noopener">LeetCode</a>
+      <div class="hero-actions">
+        <a class="hero-cta magnetic" href="mailto:roshanjha1007@gmail.com">Let's Talk <span aria-hidden="true">↗</span></a>
+        <span class="availability"><span aria-hidden="true"></span>Open to internships</span>
+      </div>
+      <div class="links" aria-label="Social profiles">
+        <a href="https://www.linkedin.com/in/roshanjha1007/" rel="me noopener">LinkedIn</a>
+        <a href="https://github.com/roshanjha1007-ctrl" rel="me noopener">GitHub</a>
+        <a href="https://www.skills.google/public_profiles/3627ba7f-261a-465a-b769-d2da955b5581" rel="me noopener">Google Skills</a>
+        <a href="https://www.credly.com/users/roshanjha1007/badges" rel="me noopener">Credly</a>
+        <a href="https://leetcode.com/u/roshanjha_1007/" rel="me noopener">LeetCode</a>
       </div>
     </div>
     <div class="art parallax-layer" id="art">
@@ -337,9 +341,16 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
   <section id="about" class="about">
     <h2>About</h2>
     <div>
-      <p>Hackathon finalist, community builder and AI tinkerer. I take rough ideas and make them real, usually before I feel ready.</p>
-      <p>As a Google Student Ambassador 2026, I run Gemini sessions on campus that have put 100+ students hands-on with Google's AI tools. At hackathons I learn by building: a 24-hour neuromorphic computing sprint at VIT Bhopal, a rural healthcare telemedicine platform for Smart India Hackathon, and the national UIDAI Hackathon.</p>
-      <p>CSIT student at Dronacharya Group of Institutions, early in my journey and shipping anyway.</p>
+      <div class="about-copy">
+        <p>Hackathon finalist, community builder and AI tinkerer. I take rough ideas and make them real, usually before I feel ready.</p>
+        <p>As a Google Student Ambassador 2026, I run Gemini sessions on campus that have put 100+ students hands-on with Google's AI tools. At hackathons I learn by building: a 24-hour neuromorphic computing sprint at VIT Bhopal, a rural healthcare telemedicine platform for Smart India Hackathon, and the national UIDAI Hackathon.</p>
+        <p>CSIT student at Dronacharya Group of Institutions, early in my journey and shipping anyway.</p>
+      </div>
+      <aside class="about-facts" aria-label="At a glance">
+        <div><span>College</span><strong>Dronacharya Group of Institutions</strong></div>
+        <div><span>Role</span><strong>CSIT student · Google Student Ambassador</strong></div>
+        <div><span>Focus</span><strong>AI, product and hackathon builds</strong></div>
+      </aside>
     </div>
   </section>
 
@@ -450,8 +461,10 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
   <section id="contact" class="contact">
     <h2>Contact</h2>
     <div>
+      <p class="contact-invitation">Have an idea, opportunity or question? I’d be glad to hear from you.</p>
+      <a class="contact-email-action magnetic" href="mailto:roshanjha1007@gmail.com">roshanjha1007@gmail.com <span aria-hidden="true">↗</span></a>
       <div class="particle-text-wrap" id="particle-text-wrap">
-        <canvas id="particle-canvas" aria-label="roshanjha1007@gmail.com"></canvas>
+        <canvas id="particle-canvas" aria-hidden="true"></canvas>
         <a class="particle-link-sr big" href="mailto:roshanjha1007@gmail.com">roshanjha1007@gmail.com</a>
       </div>
       <ul>
