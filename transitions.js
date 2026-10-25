@@ -59,41 +59,63 @@
     var el = document.querySelector('.tech-text');
     if (!el) return;
 
-    var text = el.getAttribute('data-text') || el.textContent.trim();
+    var rawText = el.getAttribute('data-text') || el.textContent.trim();
+    var fullText = rawText.replace(/\s+/g, ' ').trim();
+    el.setAttribute('aria-label', fullText);
     el.textContent = '';
 
-    var chars = text.split('');
+    var words = fullText.split(' ');
     var spanList = [];
     var GLYPHS = '!<>-_\\/[]{}—=+*^?#________0101XYZ';
 
-    for (var i = 0; i < chars.length; i++) {
-      var ch = chars[i];
-      var span = document.createElement('span');
-      span.className = 'tech-char';
-      span.textContent = ch === ' ' ? '\u00A0' : ch;
-      span.dataset.orig = ch;
-      el.appendChild(span);
-      spanList.push(span);
+    for (var w = 0; w < words.length; w++) {
+      var wordStr = words[w];
+      var wordSpan = document.createElement('span');
+      wordSpan.className = 'word';
 
-      // Interactive letter hover glitch & spring
-      (function (s, origChar) {
-        if (origChar === ' ') return;
-        var timeout = null;
-        s.addEventListener('mouseenter', function () {
-          if (reduceMotion) return;
-          var count = 0;
-          clearInterval(timeout);
-          timeout = setInterval(function () {
-            if (count < 3) {
-              s.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-              count++;
-            } else {
-              s.textContent = origChar;
-              clearInterval(timeout);
-            }
-          }, 45);
-        });
-      })(span, ch);
+      for (var c = 0; c < wordStr.length; c++) {
+        var ch = wordStr[c];
+        var span = document.createElement('span');
+        span.className = 'tech-char';
+        span.textContent = ch;
+        span.dataset.orig = ch;
+        span.setAttribute('aria-hidden', 'true');
+        wordSpan.appendChild(span);
+        spanList.push(span);
+
+        // Interactive letter hover glitch & spring
+        (function (s, origChar) {
+          var timeout = null;
+          s.addEventListener('mouseenter', function () {
+            if (reduceMotion) return;
+            var count = 0;
+            clearInterval(timeout);
+            timeout = setInterval(function () {
+              if (count < 3) {
+                s.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+                count++;
+              } else {
+                s.textContent = origChar;
+                clearInterval(timeout);
+              }
+            }, 45);
+          });
+        })(span, ch);
+      }
+
+      el.appendChild(wordSpan);
+
+      // Between words: prefer clean two-line layout on desktop:
+      // Line 1: "Roshan Kumar", Line 2: "Jha".
+      if (w < words.length - 1) {
+        if (w === 1 && words.length === 3 && words[0] === 'Roshan' && words[1] === 'Kumar' && words[2] === 'Jha') {
+          var br = document.createElement('br');
+          br.className = 'hero-name-break';
+          el.appendChild(br);
+        } else {
+          el.appendChild(document.createTextNode(' '));
+        }
+      }
     }
 
     // Entrance decoding scramble
@@ -106,10 +128,8 @@
         var resolvedCount = Math.floor(progress * spanList.length);
 
         for (var k = 0; k < spanList.length; k++) {
-          var orig = spanList[k].dataset.orig;
-          if (orig === ' ') continue;
           if (k < resolvedCount) {
-            spanList[k].textContent = orig;
+            spanList[k].textContent = spanList[k].dataset.orig;
           } else {
             spanList[k].textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
           }
@@ -118,8 +138,7 @@
           requestAnimationFrame(scrambleStep);
         } else {
           for (var j = 0; j < spanList.length; j++) {
-            var o = spanList[j].dataset.orig;
-            spanList[j].textContent = o === ' ' ? '\u00A0' : o;
+            spanList[j].textContent = spanList[j].dataset.orig;
           }
         }
       }

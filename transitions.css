@@ -103,7 +103,7 @@
 /* 1. REACT BITS: TechText */
 .tech-text-wrap {
   position: relative;
-  display: inline-block;
+  display: block;
 }
 .tech-hud-badge {
   display: inline-block;
@@ -121,7 +121,17 @@
 }
 .tech-text {
   position: relative;
+  display: block;
+  text-wrap: balance;
+  margin: 0;
+  padding: 0;
+}
+.tech-text .word {
   display: inline-block;
+  white-space: nowrap;
+}
+.hero-name-break {
+  display: block;
 }
 .tech-char {
   display: inline-block;
