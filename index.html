@@ -310,10 +310,21 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
   <section id="projects">
     <h2>Projects</h2>
     <div>
-      <div class="row">
-        <div><h3>HealthBridge</h3><small>Smart India Hackathon 2026</small></div>
-        <p>Telemedicine platform for rural and underserved healthcare, built for problem statement SIH26133. Deployed and working.</p>
-        <a class="go" href="https://health-bridge-frontend-rosy.vercel.app/login" rel="noopener">Live site</a>
+      <div class="row featured-project">
+        <div>
+          <h3>HealthBridge</h3>
+          <div class="pill-group">
+            <span class="pill">Smart India Hackathon 2026</span>
+            <span class="pill">IDE Bootcamp · Finalist</span>
+          </div>
+        </div>
+        <div>
+          <p class="project-desc">Telemedicine platform for rural healthcare: book doctors, video consult and pay securely. Built over a year at a national-level bootcamp, then taken to SIH 2026.</p>
+          <div class="project-stack">React · Express · MongoDB · LiveKit · Socket.io</div>
+        </div>
+        <div class="project-links">
+          <a class="btn-demo" href="https://health-bridge-frontend-rosy.vercel.app/login" target="_blank" rel="noopener">Live Demo <span class="arrow">↗</span></a>
+        </div>
       </div>
       <div class="row">
         <div><h3>NeuroNex prototype</h3><small>VIT Bhopal, 24-hour hackathon</small></div>
