@@ -105,16 +105,9 @@
 
       el.appendChild(wordSpan);
 
-      // Between words: prefer clean two-line layout on desktop:
-      // Line 1: "Roshan Kumar", Line 2: "Jha".
+      // Between words: single space, kept on one single line
       if (w < words.length - 1) {
-        if (w === 1 && words.length === 3 && words[0] === 'Roshan' && words[1] === 'Kumar' && words[2] === 'Jha') {
-          var br = document.createElement('br');
-          br.className = 'hero-name-break';
-          el.appendChild(br);
-        } else {
-          el.appendChild(document.createTextNode(' '));
-        }
+        el.appendChild(document.createTextNode(' '));
       }
     }
 

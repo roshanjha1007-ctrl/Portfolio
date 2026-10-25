@@ -109,7 +109,7 @@ nav a:hover { color: var(--ink); }
 /* HERO */
 .hero {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: 1.25fr 0.75fr;
   gap: 48px;
   align-items: center;
   min-height: calc(100vh - 78px);
@@ -117,9 +117,14 @@ nav a:hover { color: var(--ink); }
   padding: 12px 0 40px;
 }
 h1 {
-  font: 800 clamp(2.4rem, 5.8vw, 5rem)/0.98 var(--display);
+  font: 800 clamp(1.75rem, 4.4vw, 4.2rem)/1.05 var(--display);
   letter-spacing: -0.03em;
-  text-wrap: balance;
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  h1 {
+    font-size: clamp(1.5rem, 6.8vw, 2.2rem);
+  }
 }
 .tag { margin-top: 26px; max-width: 30em; }
 .tag p:first-child { font: 500 clamp(20px, 2.4vw, 26px)/1.3 var(--display); letter-spacing: -0.01em; }
@@ -252,7 +257,7 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
       <!-- REACT BITS: TechText for hero h1 -->
       <div class="tech-text-wrap">
         <span class="tech-hud-badge">[SYS.BUILDER // 2026]</span>
-        <h1 class="tech-text" data-text="Roshan Kumar Jha" aria-label="Roshan Kumar Jha"><span class="word">Roshan</span> <span class="word">Kumar</span><br class="hero-name-break"><span class="word">Jha</span></h1>
+        <h1 class="tech-text" data-text="Roshan Kumar Jha" aria-label="Roshan Kumar Jha"><span class="word">Roshan</span> <span class="word">Kumar</span> <span class="word">Jha</span></h1>
       </div>
       <div class="tag">
         <p>Too curious to wait for the right time, so I start building.</p>
