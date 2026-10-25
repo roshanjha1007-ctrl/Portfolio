@@ -18,11 +18,26 @@ if (host) {
   new ResizeObserver(mark).observe(document.body);
   document.fonts?.addEventListener('loadingdone', mark);
 
-  background(host, {
+  let bg = background(host, {
     preset: swell,
     mark: 'glyph',            // characters instead of dots
     clear: read, clearPadding: 6, clearSoftness: 30,
     palette: { light: '#A855F7', dark: '#E879F9' },
     opacity: 0.7,
   });
+
+  const syncTheme = () => {
+    bg?.destroy();
+    bg = background(host, {
+      preset: swell,
+      mark: 'glyph',
+      clear: read, clearPadding: 6, clearSoftness: 30,
+      palette: { light: '#A855F7', dark: '#E879F9' },
+      opacity: 0.7,
+    });
+  };
+
+  window.addEventListener('themechange', syncTheme);
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener?.('change', syncTheme);
 }

@@ -1,14 +1,295 @@
-body{overflow-x:hidden;transition:background-color .9s ease}
-section{position:relative}
-.tr-pre{opacity:0}
-.tr-slide{animation:trs .85s cubic-bezier(.2,.7,.2,1) both}
-@keyframes trs{from{opacity:0;transform:translateX(var(--dx,-70px));filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
-.tr-iris{animation:tri 1.1s cubic-bezier(.3,.7,.2,1) both}
-@keyframes tri{from{clip-path:circle(0% at var(--cx,50%) 30%)}to{clip-path:circle(150% at var(--cx,50%) 30%)}}
-.tr-curtain{overflow:hidden}
-.curtain{position:absolute;inset:0;z-index:5;background:linear-gradient(120deg,#FF9FC8,#6D28D9);transform-origin:top;animation:trc .9s .15s cubic-bezier(.7,0,.2,1) forwards}
-@keyframes trc{to{transform:scaleY(0)}}
-.ticker{overflow:hidden;white-space:nowrap;margin:0 calc(50% - 50vw);background:linear-gradient(90deg,#FF9FC8,#B58CF5);padding:10px 0;border-block:1px solid #3B0764}
-.ticker .track{display:inline-block;padding-left:100%;animation:tick 30s linear infinite;font:600 15px var(--body);color:#3B0764}
-@keyframes tick{to{transform:translateX(-100%)}}
-@media(prefers-reduced-motion:reduce){.ticker .track{animation:none;padding-left:0}}
+/* ============================================================
+   Portfolio Animations & React Bits Styles
+   ============================================================ */
+
+/* Theme Variables */
+:root {
+  --paper: #FAF7FB;
+  --surface: #FFFFFF;
+  --ink: #160D24;
+  --muted: #5E536E;
+  --line: #E5DCED;
+  --accent: #8B2FC9;
+  --soft: #F4EBF7;
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --ticker-bg-start: #FF9FC8;
+  --ticker-bg-end: #B58CF5;
+  --ticker-text: #3B0764;
+  --ascii-bg: #FF9FC8;
+  --ascii-ink: #3B0764;
+  --ascii-acc: #6D28D9;
+  --target-border: rgba(139, 47, 201, 0.5);
+  --target-active: #8B2FC9;
+  --hud-tag: #8B2FC9;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --paper: #0B0714;
+  --surface: #140D24;
+  --ink: #F7EAF8;
+  --muted: #A393B8;
+  --line: #291B3D;
+  --accent: #D946EF;
+  --soft: #1E122E;
+  --card-bg: rgba(20, 13, 36, 0.7);
+  --ticker-bg-start: #2D0F3F;
+  --ticker-bg-end: #4C1D95;
+  --ticker-text: #FCE7F3;
+  --ascii-bg: #140D24;
+  --ascii-ink: #F7EAF8;
+  --ascii-acc: #D946EF;
+  --target-border: rgba(217, 70, 239, 0.6);
+  --target-active: #D946EF;
+  --hud-tag: #D946EF;
+  color-scheme: dark;
+}
+
+/* Nav & Theme Toggle */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.theme-toggle:hover {
+  background: var(--soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: rotate(15deg);
+}
+.theme-toggle svg {
+  position: absolute;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+[data-theme="dark"] .theme-toggle .sun-icon {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+[data-theme="dark"] .theme-toggle .moon-icon {
+  transform: translateY(24px) scale(0.5);
+  opacity: 0;
+}
+:root:not([data-theme="dark"]) .theme-toggle .sun-icon {
+  transform: translateY(-24px) scale(0.5);
+  opacity: 0;
+}
+:root:not([data-theme="dark"]) .theme-toggle .moon-icon {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* 1. REACT BITS: TechText */
+.tech-text-wrap {
+  position: relative;
+  display: inline-block;
+}
+.tech-hud-badge {
+  display: inline-block;
+  font-family: var(--body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hud-tag);
+  background: var(--soft);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  border-left: 2px solid var(--accent);
+}
+.tech-text {
+  position: relative;
+  display: inline-block;
+}
+.tech-char {
+  display: inline-block;
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease;
+  will-change: transform;
+}
+.tech-char:hover {
+  transform: translateY(-3px) scale(1.08);
+  color: var(--accent);
+  text-shadow: 0 0 12px var(--accent);
+}
+
+/* 2. REACT BITS: TextLoop */
+.text-loop-container {
+  overflow: hidden;
+  white-space: nowrap;
+  margin: 0 calc(50% - 50vw);
+  background: linear-gradient(90deg, var(--ticker-bg-start), var(--ticker-bg-end));
+  padding: 12px 0;
+  border-block: 1px solid var(--line);
+  user-select: none;
+  position: relative;
+}
+.text-loop-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.text-loop-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-right: 20px;
+  font: 600 15px var(--body);
+  color: var(--ticker-text);
+  letter-spacing: 0.02em;
+}
+.text-loop-content .star {
+  opacity: 0.7;
+}
+
+/* 3. REACT BITS: ParticleText */
+.particle-text-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 80px;
+  margin-bottom: 16px;
+}
+#particle-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: pointer;
+}
+.particle-link-sr {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 4. REACT BITS: VariableProximity */
+.vp-word {
+  display: inline-block;
+  white-space: pre-wrap;
+  will-change: font-variation-settings;
+}
+
+/* 5. REACT BITS: TargetCursor */
+.target-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  z-index: 999999;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s ease,
+              border-radius 0.25s ease;
+  will-change: transform, width, height;
+}
+.tc-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: var(--target-active);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.tc-bracket {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--target-border);
+  transition: all 0.2s ease;
+}
+.tc-tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.tc-tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.tc-bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.tc-br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+/* Target locked state */
+.target-cursor.locked {
+  border-radius: 6px;
+}
+.target-cursor.locked .tc-bracket {
+  border-color: var(--target-active);
+  width: 12px;
+  height: 12px;
+}
+.target-cursor.locked .tc-dot {
+  opacity: 0.4;
+  transform: translate(-50%, -50%) scale(0.7);
+}
+.target-cursor.down .tc-bracket {
+  transform: scale(0.85);
+}
+
+@media (pointer: coarse), (hover: none) {
+  .target-cursor {
+    display: none !important;
+  }
+}
+
+/* 6. SCROLL ANIMATIONS: Parallax, Motion Blur & Section Reveals */
+body {
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.parallax-layer {
+  will-change: transform, filter;
+}
+
+/* Section entrance reveal */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  filter: blur(10px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0px);
+}
+
+/* Row stagger animations */
+.row {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+/* Prefers-reduced-motion overrides */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .parallax-layer {
+    transform: none !important;
+    filter: none !important;
+  }
+  .target-cursor {
+    display: none !important;
+  }
+}
