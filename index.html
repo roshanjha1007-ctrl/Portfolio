@@ -187,7 +187,7 @@ h2 { font: 700 28px/1.1 var(--display); letter-spacing: -0.02em; }
   border-bottom: 1px solid var(--line);
   align-items: start;
 }
-.row:first-child { padding-top: 0; }
+.row:first-child:not(.bento-card) { padding-top: 0; }
 .row h3 { font: 700 20px var(--display); }
 .row small { display: block; color: var(--muted); font-size: 14px; margin-top: 4px; }
 .row a.go { font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; }
@@ -216,7 +216,7 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
   .hero { grid-template-columns: 1fr; gap: 32px; padding-top: 16px; min-height: 0; padding-bottom: 56px; }
   .art { justify-self: start; width: 100%; max-width: 360px; height: auto; }
   section { grid-template-columns: 1fr; gap: 20px; padding: 44px 0; }
-  .row, dl div { grid-template-columns: 1fr; gap: 6px; }
+  .row:not(.bento-card), dl div { grid-template-columns: 1fr; gap: 6px; }
 }
 </style>
 <link rel="stylesheet" href="transitions.css">
@@ -339,7 +339,13 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
         </div>
         <div>
           <p class="project-desc">Telemedicine platform for rural healthcare: book doctors, video consult and pay securely. Built over a year at a national-level bootcamp, then taken to SIH 2026.</p>
-          <div class="project-stack">React · Express · MongoDB · LiveKit · Socket.io</div>
+          <div class="project-stack">
+            <span class="stack-item">React</span> <span class="stack-dot">·</span>
+            <span class="stack-item">Express</span> <span class="stack-dot">·</span>
+            <span class="stack-item">MongoDB</span> <span class="stack-dot">·</span>
+            <span class="stack-item">LiveKit</span> <span class="stack-dot">·</span>
+            <span class="stack-item">Socket.io</span>
+          </div>
         </div>
         <div class="project-links">
           <a class="btn-demo magnetic" href="https://health-bridge-frontend-rosy.vercel.app/login" target="_blank" rel="noopener noreferrer" aria-label="Open HealthBridge demo">Live Demo <span class="arrow">↗</span></a>
@@ -357,7 +363,13 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
         </div>
         <div>
           <p class="project-desc">Working neuromorphic computing prototype, built from zero domain knowledge in a single day and night.</p>
-          <div class="project-stack">Python · TensorFlow · FastAPI · WebSockets · scikit-learn</div>
+          <div class="project-stack">
+            <span class="stack-item">Python</span> <span class="stack-dot">·</span>
+            <span class="stack-item">TensorFlow</span> <span class="stack-dot">·</span>
+            <span class="stack-item">FastAPI</span> <span class="stack-dot">·</span>
+            <span class="stack-item">WebSockets</span> <span class="stack-dot">·</span>
+            <span class="stack-item">scikit&#8209;learn</span>
+          </div>
         </div>
         <div class="project-links">
           <a class="btn-github magnetic" href="https://github.com/roshanjha1007-ctrl/synops_sec" target="_blank" rel="noopener noreferrer" aria-label="Open NeuroNex repository">GitHub <span class="arrow">↗</span></a>
