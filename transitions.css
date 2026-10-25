@@ -1,6 +1,13 @@
-/* ============================================================
-   Portfolio Animations & React Bits Styles
-   ============================================================ */
+/**
+ * ============================================================
+ * Portfolio UI Systems & Open Source Inspirations
+ * - React Bits (David Haz, MIT License): TechText, TextLoop, ParticleText, VariableProximity, TargetCursor
+ * - Magic UI (Dorian Baffier, MIT License): Bento Grid & Border Beam
+ * - Motion Primitives (Emil Kowalski, MIT License): Magnetic Buttons & Progressive Blur
+ * - Aceternity UI (Manu Arora, MIT License for non-redistributed portfolio): Infinite Moving Cards & 3D Tilt
+ * - Asciify & Uiverse.io (MIT License): Toast notification & clean elements
+ * ============================================================
+ */
 
 /* Theme Variables */
 :root {
@@ -289,6 +296,135 @@ body {
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
+/* 8. Portrait Backdrop & Shape Switcher */
+.portrait-backdrop {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 10%;
+  bottom: 0;
+  z-index: 1;
+  background: linear-gradient(150deg, rgba(139, 47, 201, 0.28) 0%, rgba(255, 159, 200, 0.38) 100%);
+  border: 1.5px solid rgba(139, 47, 201, 0.38);
+  box-shadow: 0 12px 36px -6px rgba(139, 47, 201, 0.22), 0 0 30px rgba(255, 159, 200, 0.18);
+  clip-path: polygon(50% 0%, 75% 6.7%, 93.3% 25%, 100% 50%, 100% 100%, 75% 100%, 50% 100%, 25% 100%, 0% 100%, 0% 50%, 6.7% 25%, 25% 6.7%);
+  transition: clip-path 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+  will-change: clip-path;
+}
+
+[data-theme="dark"] .portrait-backdrop {
+  background: linear-gradient(150deg, rgba(76, 29, 149, 0.55) 0%, rgba(217, 70, 239, 0.28) 100%);
+  border: 1.5px solid rgba(217, 70, 239, 0.4);
+  box-shadow: 0 12px 40px -4px rgba(217, 70, 239, 0.32), 0 0 32px rgba(168, 85, 247, 0.25);
+}
+
+.portrait-backdrop.shape-arch {
+  clip-path: polygon(50% 0%, 75% 6.7%, 93.3% 25%, 100% 50%, 100% 100%, 75% 100%, 50% 100%, 25% 100%, 0% 100%, 0% 50%, 6.7% 25%, 25% 6.7%);
+}
+
+.portrait-backdrop.shape-circle {
+  clip-path: polygon(50% 0%, 75% 6.7%, 93.3% 25%, 100% 50%, 93.3% 75%, 75% 93.3%, 50% 100%, 25% 93.3%, 6.7% 75%, 0% 50%, 6.7% 25%, 25% 6.7%);
+}
+
+.portrait-backdrop.shape-hexagon {
+  clip-path: polygon(50% 0%, 50% 0%, 93.3% 25%, 93.3% 25%, 93.3% 75%, 93.3% 75%, 50% 100%, 50% 100%, 6.7% 75%, 6.7% 75%, 6.7% 25%, 6.7% 25%);
+}
+
+.portrait-backdrop.shape-pill {
+  clip-path: polygon(50% 0%, 75% 4%, 90% 12%, 90% 50%, 90% 88%, 75% 96%, 50% 100%, 25% 96%, 10% 88%, 10% 50%, 10% 12%, 25% 4%);
+}
+
+.portrait-subject {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.portrait-subject canvas,
+.portrait-subject img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  filter: contrast(1.04) brightness(1.02) saturate(0.96) hue-rotate(-6deg) drop-shadow(0 14px 28px rgba(45, 15, 65, 0.22));
+}
+
+[data-theme="dark"] .portrait-subject canvas,
+[data-theme="dark"] .portrait-subject img {
+  filter: contrast(1.06) brightness(0.98) saturate(0.95) hue-rotate(-8deg) drop-shadow(0 16px 36px rgba(15, 5, 25, 0.45));
+}
+
+.portrait-subject img {
+  display: none;
+}
+
+.art.fallback .portrait-subject img {
+  display: block;
+}
+
+.art.fallback .portrait-subject canvas {
+  display: none;
+}
+
+/* Shape Switcher UI */
+.shape-switcher {
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.shape-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.shape-btn:hover {
+  color: var(--accent);
+  background: var(--soft);
+  transform: scale(1.1);
+}
+
+.shape-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(139, 47, 201, 0.35);
+}
+
+@media (max-width: 820px) {
+  .shape-switcher {
+    display: none !important;
+  }
+}
+
 [data-theme="dark"] .featured-project {
   background: linear-gradient(135deg, rgba(217, 70, 239, 0.06), rgba(76, 29, 149, 0.15));
   border: 1px solid rgba(217, 70, 239, 0.3) !important;
@@ -389,6 +525,221 @@ body {
   .project-links {
     margin-top: 6px;
   }
+}
+
+/* 9. Bento Grid & Magic UI Border Beam */
+.bento-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.bento-card {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 24px 28px;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  overflow: hidden;
+}
+
+.bento-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px -6px rgba(139, 47, 201, 0.16);
+}
+
+[data-theme="dark"] .bento-card {
+  background: rgba(20, 13, 36, 0.65);
+  border-color: var(--line);
+}
+
+[data-theme="dark"] .bento-card:hover {
+  box-shadow: 0 10px 32px -4px rgba(217, 70, 239, 0.22);
+}
+
+.bento-featured {
+  background: linear-gradient(135deg, rgba(139, 47, 201, 0.05), rgba(255, 159, 200, 0.09));
+  border-color: rgba(139, 47, 201, 0.35);
+}
+
+[data-theme="dark"] .bento-featured {
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.08), rgba(76, 29, 149, 0.18));
+  border-color: rgba(217, 70, 239, 0.38);
+}
+
+.border-beam {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 1.5px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.border-beam::after {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  background: conic-gradient(from 0deg, transparent 0deg 300deg, var(--accent) 330deg, #FF9FC8 360deg);
+  animation: border-beam-spin 6s linear infinite;
+}
+
+@keyframes border-beam-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 10. Secondary Button (.btn-github) & Magnetic Buttons */
+.btn-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink) !important;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.btn-github:hover {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--accent) !important;
+}
+
+.magnetic {
+  display: inline-flex;
+  will-change: transform;
+}
+
+/* 11. Progressive Blur at Hero Bottom (Motion Primitives) */
+.hero {
+  position: relative;
+}
+
+.progressive-blur {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  z-index: 4;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 40%, black 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 40%, black 100%);
+  transition: backdrop-filter 0.3s ease;
+}
+
+/* 12. Aceternity Infinite Moving Cards & 3D Tilt */
+.infinite-cards-wrap {
+  position: relative;
+  overflow: hidden;
+  margin: 12px 0 0;
+  padding: 16px 0;
+  mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+}
+
+.infinite-cards-track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  will-change: transform;
+}
+
+.tilt-card {
+  width: 320px;
+  flex-shrink: 0;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.tilt-card-inner {
+  background: var(--card-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 22px;
+  height: 100%;
+  transition: transform 0.15s ease-out, border-color 0.25s ease, box-shadow 0.25s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.tilt-card:hover .tilt-card-inner {
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px -4px rgba(139, 47, 201, 0.22);
+}
+
+[data-theme="dark"] .tilt-card:hover .tilt-card-inner {
+  box-shadow: 0 10px 32px -4px rgba(217, 70, 239, 0.26);
+}
+
+.tilt-card dt {
+  font: 700 16px var(--display);
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.tilt-card dd {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* 13. Asciify Toast Notification */
+.asciify-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1.5px solid var(--accent);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 0 16px rgba(139, 47, 201, 0.25);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font: 600 13.5px "Courier New", monospace;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000000;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.asciify-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.asciify-toast .toast-icon {
+  color: var(--accent);
+}
+
+.credits {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.8;
 }
 
 /* Prefers-reduced-motion overrides */

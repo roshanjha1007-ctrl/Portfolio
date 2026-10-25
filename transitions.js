@@ -463,7 +463,7 @@
     });
 
     function setupTargets() {
-      var targets = document.querySelectorAll('a, button, #art, .row, .theme-toggle, #particle-canvas');
+      var targets = document.querySelectorAll('a, button, #art, .row, .theme-toggle, #particle-canvas, .bento-card, .tilt-card, .shape-btn');
       targets.forEach(function (el) {
         el.addEventListener('mouseenter', function () {
           lockedEl = el;
@@ -581,12 +581,17 @@
         heroText.style.filter = blurFilter;
       }
 
-      // 4. Parallax Layer: Portrait
+      // 4. Parallax Layer: Portrait (moves slower than text, scales & rotates with velocity, drifts into next section)
       if (art) {
-        var artOffset = currentScrollY * 0.18;
-        var artScale = Math.max(0.75, 1 - currentScrollY * 0.0004);
-        art.style.transform = 'translate3d(0, ' + artOffset.toFixed(1) + 'px, 0) scale(' + (artScale * stretchY).toFixed(3) + ')';
-        art.style.filter = blurFilter;
+        var artOffset = currentScrollY * 0.28;
+        var scrollProgress = Math.min(1, currentScrollY / (window.innerHeight * 0.8));
+        var rotateDeg = Math.max(-2.5, Math.min(2.5, smoothVelocity * 0.035));
+        var scale = Math.max(0.82, 1 - scrollProgress * 0.14) * (1 + Math.min(0.03, Math.abs(smoothVelocity) * 0.0008));
+        var mildBlur = Math.min(5, Math.abs(smoothVelocity) * 0.16);
+        var artFilter = mildBlur > 0.2 ? 'blur(' + mildBlur.toFixed(1) + 'px)' : 'none';
+
+        art.style.transform = 'translate3d(0, ' + artOffset.toFixed(1) + 'px, 0) scale(' + scale.toFixed(3) + ') rotate(' + rotateDeg.toFixed(2) + 'deg)';
+        art.style.filter = artFilter;
       }
 
       // 5. Parallax Layer: Waves background
@@ -630,6 +635,194 @@
   }
 
   /* ============================================================
+     8. SHAPE SWITCHER & SCROLL MORPH (Arch -> Circle)
+     ============================================================ */
+  function initShapeSwitcher() {
+    var backdrop = document.getElementById('portrait-backdrop');
+    var buttons = document.querySelectorAll('.shape-btn');
+    if (!backdrop || buttons.length === 0) return;
+
+    var manualShape = null;
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var shape = btn.getAttribute('data-shape');
+        manualShape = shape;
+        setShape(shape);
+      });
+    });
+
+    function setShape(shape) {
+      backdrop.className = 'portrait-backdrop shape-' + shape;
+      buttons.forEach(function (b) {
+        if (b.getAttribute('data-shape') === shape) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+    }
+
+    // Scroll morph: arch -> circle when scrolling down if user has not picked a shape
+    window.addEventListener('scroll', function () {
+      if (manualShape || reduceMotion) return;
+      var scrollY = window.scrollY || window.pageYOffset;
+      if (scrollY > 100) {
+        if (!backdrop.classList.contains('shape-circle')) {
+          setShape('circle');
+        }
+      } else {
+        if (!backdrop.classList.contains('shape-arch')) {
+          setShape('arch');
+        }
+      }
+    }, { passive: true });
+  }
+
+  /* ============================================================
+     9. MAGNETIC BUTTONS (Motion Primitives)
+     ============================================================ */
+  function initMagneticButtons() {
+    if (isTouch || reduceMotion) return;
+
+    var magnets = document.querySelectorAll('.magnetic, .links a, .btn-demo, .btn-github, .shape-btn');
+    var radius = 60;
+
+    magnets.forEach(function (el) {
+      var ticking = false;
+
+      el.addEventListener('mousemove', function (e) {
+        var rect = el.getBoundingClientRect();
+        var centerX = rect.left + rect.width / 2;
+        var centerY = rect.top + rect.height / 2;
+
+        var dx = e.clientX - centerX;
+        var dy = e.clientY - centerY;
+        var dist = Math.hypot(dx, dy);
+
+        if (dist < radius) {
+          var pullX = dx * 0.32;
+          var pullY = dy * 0.32;
+          el.style.transform = 'translate3d(' + pullX.toFixed(1) + 'px, ' + pullY.toFixed(1) + 'px, 0)';
+        }
+      });
+
+      el.addEventListener('mouseleave', function () {
+        el.style.transform = 'translate3d(0, 0, 0)';
+      });
+    });
+  }
+
+  /* ============================================================
+     10. PROGRESSIVE BLUR (Motion Primitives)
+     ============================================================ */
+  function initProgressiveBlur() {
+    var blurEl = document.querySelector('.progressive-blur');
+    if (!blurEl || reduceMotion) return;
+
+    window.addEventListener('scroll', function () {
+      var scrollY = window.scrollY || window.pageYOffset;
+      var heroHeight = (document.querySelector('.hero') && document.querySelector('.hero').offsetHeight) || 600;
+      var opacity = Math.max(0, Math.min(1, 1 - scrollY / (heroHeight * 0.9)));
+      blurEl.style.opacity = opacity.toFixed(2);
+    }, { passive: true });
+  }
+
+  /* ============================================================
+     11. ACETERNITY INFINITE MOVING CARDS & 3D TILT (Highlights)
+     ============================================================ */
+  function initInfiniteHighlights() {
+    var wrap = document.getElementById('infinite-cards-wrap');
+    if (!wrap) return;
+
+    var track = wrap.querySelector('.infinite-cards-track');
+    var cards = wrap.querySelectorAll('.tilt-card');
+    if (!track || cards.length === 0) return;
+
+    var posX = 0;
+    var speed = 0.65;
+    var isPaused = false;
+    var halfWidth = track.scrollWidth / 2;
+
+    wrap.addEventListener('mouseenter', function () { isPaused = true; });
+    wrap.addEventListener('mouseleave', function () { isPaused = false; });
+
+    // 3D Card Tilt (Aceternity style)
+    if (!isTouch && !reduceMotion) {
+      cards.forEach(function (card) {
+        var inner = card.querySelector('.tilt-card-inner');
+        if (!inner) return;
+
+        card.addEventListener('mousemove', function (e) {
+          var rect = card.getBoundingClientRect();
+          var x = e.clientX - rect.left;
+          var y = e.clientY - rect.top;
+          var centerX = rect.width / 2;
+          var centerY = rect.height / 2;
+
+          var rotateX = ((y - centerY) / centerY) * -12;
+          var rotateY = ((x - centerX) / centerX) * 12;
+
+          inner.style.transform = 'perspective(800px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg) scale3d(1.02, 1.02, 1.02)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+          inner.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        });
+      });
+    }
+
+    if (reduceMotion) return;
+
+    function loopTrack() {
+      if (!isPaused) {
+        posX -= speed;
+        if (Math.abs(posX) >= halfWidth) {
+          posX = 0;
+        }
+        track.style.transform = 'translate3d(' + posX.toFixed(1) + 'px, 0, 0)';
+      }
+      requestAnimationFrame(loopTrack);
+    }
+
+    window.addEventListener('resize', function () {
+      halfWidth = track.scrollWidth / 2;
+    });
+
+    requestAnimationFrame(loopTrack);
+  }
+
+  /* ============================================================
+     12. ASCIIFY TOAST NOTIFICATION (Email click-to-copy)
+     ============================================================ */
+  function initEmailToast() {
+    var emailLinks = document.querySelectorAll('a[href^="mailto:roshanjha1007@gmail.com"], #particle-canvas');
+    var toast = document.createElement('div');
+    toast.className = 'asciify-toast';
+    toast.innerHTML = '<span class="toast-icon">✦</span><span>[COPIED] roshanjha1007@gmail.com</span>';
+    document.body.appendChild(toast);
+
+    var toastTimer = null;
+
+    emailLinks.forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText('roshanjha1007@gmail.com');
+          }
+        } catch (err) {}
+
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toast.classList.remove('show');
+        }, 2600);
+      });
+    });
+  }
+
+  /* ============================================================
      INITIALIZE ON DOM READY
      ============================================================ */
   function onReady() {
@@ -640,6 +833,11 @@
     initVariableProximity();
     initTargetCursor();
     initScrollSystem();
+    initShapeSwitcher();
+    initMagneticButtons();
+    initProgressiveBlur();
+    initInfiniteHighlights();
+    initEmailToast();
   }
 
   if (document.readyState === 'loading') {

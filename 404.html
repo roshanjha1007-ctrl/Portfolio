@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 - Page Not Found | Roshan Kumar Jha</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Roboto+Flex:wght@400;600&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (systemDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {}
+  })();
+</script>
+<style>
+:root {
+  --paper: #FAF7FB;
+  --ink: #160D24;
+  --muted: #5E536E;
+  --line: #E5DCED;
+  --accent: #8B2FC9;
+  --soft: #F4EBF7;
+  --display: "Bricolage Grotesque", sans-serif;
+  --body: "Roboto Flex", sans-serif;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --paper: #0B0714;
+  --ink: #F7EAF8;
+  --muted: #A393B8;
+  --line: #291B3D;
+  --accent: #D946EF;
+  --soft: #1E122E;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 16px/1.6 var(--body);
+  display: flex;
+  min-height: 100vh;
+  min-height: 100svh;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+.wrap-404 {
+  max-width: 520px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  padding: 48px 36px;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+.ascii-art {
+  font-family: "Courier New", monospace;
+  font-size: clamp(10px, 2.2vw, 15px);
+  line-height: 1.15;
+  color: var(--accent);
+  white-space: pre;
+  user-select: none;
+  margin-bottom: 24px;
+  text-shadow: 0 0 20px rgba(139, 47, 201, 0.3);
+}
+h1 {
+  font: 800 28px/1.2 var(--display);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+p {
+  color: var(--muted);
+  margin-bottom: 28px;
+  font-size: 15px;
+}
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(139, 47, 201, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-home:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 47, 201, 0.45);
+}
+</style>
+</head>
+<body>
+<div class="wrap-404">
+  <div class="ascii-art" aria-hidden="true">
+  _  _    ___  _  _   
+ | || |  / _ \| || |  
+ | || |_| | | | || |_ 
+ |__   _| | | |__   _|
+    | | | |_| |  | |  
+    |_|  \___/   |_|  
+  </div>
+  <h1>Lost in the ASCII field</h1>
+  <p>The page you are looking for has been diffused into noise or does not exist.</p>
+  <a href="index.html" class="btn-home">← Return to Portfolio</a>
+</div>
+</body>
+</html>

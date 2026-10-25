@@ -1,10 +1,8 @@
-/* ASCII portrait: Diffusion Reveal
- * - Default state: pure ASCII noise (n = 1).
- * - Denoises smoothly on hover / tap / scroll into view over ~1.6s (ease-in-out).
- * - Real photo cross-fades in as n drops below 0.5.
- * - On mouse leave, re-noises smoothly back to ASCII over ~1.2s.
- * - Interpolates every frame (never snaps on rapid enter/leave).
- * - Theme-aware (--ascii-bg, --ascii-ink, --ascii-acc) and prefers-reduced-motion support.
+/* ASCII portrait: Cutout Diffusion Reveal
+ * - Uses photo.png cutout (with transparent background) and photo.jpg fallback.
+ * - Only renders ASCII noise on the subject (alpha mask).
+ * - Canvas is transparent so theme-colored backdrop and Asciify waves show around it.
+ * - Denoises smoothly on hover / tap / scroll over ~1.6s; re-noises over ~1.2s.
  */
 (function() {
   'use strict';
@@ -22,27 +20,24 @@
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var COLS = 84, W = 0, H = 0, cw = 0, ch = 0, rows = 0;
-  var lum = [], cellThreshold = [], correctK = [];
+  var lum = [], cellThreshold = [], correctK = [], alphaMask = [];
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
   var SX = 0, SY = 0, SW = 1, SH = 1;
 
   // Theme colors
-  var BG = '#FF9FC8', INK = '#3B0764', ACC = '#6D28D9';
+  var INK = '#3B0764', ACC = '#6D28D9';
   function readThemeColors() {
     var cs = getComputedStyle(document.documentElement);
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    var bg = cs.getPropertyValue('--ascii-bg').trim();
     var ink = cs.getPropertyValue('--ascii-ink').trim();
     var acc = cs.getPropertyValue('--ascii-acc').trim();
 
-    BG = bg || (isDark ? '#140D24' : '#FF9FC8');
     INK = ink || (isDark ? '#F7EAF8' : '#3B0764');
     ACC = acc || (isDark ? '#D946EF' : '#6D28D9');
   }
   readThemeColors();
   window.addEventListener('themechange', readThemeColors);
 
-  // Only fall back to plain photo if image truly fails to load
   function fail(err) {
     console.error('Photo failed to load (falling back to plain img):', err);
     art.classList.add('fallback');
@@ -74,6 +69,7 @@
     lum = [];
     cellThreshold = [];
     correctK = [];
+    alphaMask = [];
 
     var pixelDataSuccess = false;
     try {
@@ -87,8 +83,12 @@
         var d = imgData.data;
         var totalCells = COLS * rows;
         var raw = [];
+        var isPng = img.src.indexOf('.png') !== -1;
+
         for (var i = 0; i < totalCells; i++) {
+          var a = d[i * 4 + 3];
           raw.push((0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]) / 255);
+          alphaMask.push(a);
         }
 
         var s = raw.slice().sort(function(a, b) { return a - b; });
@@ -100,48 +100,57 @@
 
         for (var y = 0; y < rows; y++) {
           for (var x = 0; x < COLS; x++) {
-            var a = 0, c = 0;
+            var cellIdx = y * COLS + x;
+            var sum = 0, count = 0;
             for (var b = -2; b <= 2; b++) {
               for (var k = -2; k <= 2; k++) {
                 var yy = y + b, xx = x + k;
                 if (yy >= 0 && yy < rows && xx >= 0 && xx < COLS) {
-                  a += raw[yy * COLS + xx];
-                  c++;
+                  sum += raw[yy * COLS + xx];
+                  count++;
                 }
               }
             }
-            var v = raw[y * COLS + x];
+            var v = raw[cellIdx];
             var rx = (x / COLS - 0.5) / 0.5;
             var ry = (y / rows - 0.5) / 0.58;
             var vg = Math.min(1, Math.max(0, 1.35 - 1.25 * Math.hypot(rx, ry)));
-            var lVal = Math.min(1, Math.max(0, (v + 0.8 * (v - a / c)) * vg * 1.3));
+            var lVal = Math.min(1, Math.max(0, (v + 0.8 * (v - sum / count)) * vg * 1.3));
             lum.push(lVal);
             correctK.push(Math.round(lVal * (RAMP.length - 1)));
             cellThreshold.push(hash(x * 17.13, y * 31.97));
+
+            // If fallback JPG is used without alpha channel, synthesize cutout mask for outer corners
+            if (!isPng && alphaMask[cellIdx] > 200) {
+              var isCorner = (y < rows * 0.38) && (Math.abs(x - COLS * 0.5) > (COLS * 0.22 + (y / rows) * COLS * 0.16));
+              if (isCorner) alphaMask[cellIdx] = 0;
+            }
           }
         }
         pixelDataSuccess = true;
       }
     } catch (e) {
-      // getImageData throws on file:// URLs due to CORS tainting
-      console.warn('Cannot read canvas pixels directly (file:// origin). Using computed silhouette luminance ramp:', e);
+      console.warn('Direct canvas pixel reading blocked. Using computed silhouette mask:', e);
     }
 
-    // Fallback luminance ramp if getImageData was blocked by file:// CORS
+    // Fallback if getImageData blocked by local file:// CORS
     if (!pixelDataSuccess) {
       lum = [];
       cellThreshold = [];
       correctK = [];
+      alphaMask = [];
       for (var fy = 0; fy < rows; fy++) {
         for (var fx = 0; fx < COLS; fx++) {
           var frx = (fx / COLS - 0.5) / 0.45;
           var fry = (fy / rows - 0.45) / 0.55;
           var dist = Math.hypot(frx, fry);
+          var insideSubject = dist < 0.95 && (fy > rows * 0.12 || Math.abs(fx - COLS * 0.5) < COLS * 0.25);
           var fv = Math.min(1, Math.max(0, 1.25 - dist * 0.85));
           var flVal = Math.min(1, Math.max(0, fv * (0.65 + hash(fx * 3.17, fy * 7.73) * 0.35)));
           lum.push(flVal);
           correctK.push(Math.round(flVal * (RAMP.length - 1)));
           cellThreshold.push(hash(fx * 17.13, fy * 31.97));
+          alphaMask.push(insideSubject ? 255 : 0);
         }
       }
     }
@@ -174,11 +183,10 @@
     var jitterProb = n * 0.35; // per-frame jitter shrinks with n
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = BG;
-    ctx.fillRect(0, 0, W, H);
+    // Clear transparently so backdrop shape and Asciify waves show around cutout
+    ctx.clearRect(0, 0, W, H);
 
     if (reduceMotion) {
-      // Simple smooth cross-fade without rapid ASCII noise loop
       ctx.globalAlpha = eased;
       ctx.drawImage(img, SX, SY, SW, SH, 0, 0, W, H);
       ctx.globalAlpha = 1.0;
@@ -194,16 +202,20 @@
     for (var y = 0; y < rows; y++) {
       for (var x = 0; x < COLS; x++) {
         var idx = y * COLS + x;
+
+        // Only render ASCII on the subject cutout (transparent areas remain empty)
+        if (!alphaMask[idx] || alphaMask[idx] < 35) {
+          continue;
+        }
+
         var th = cellThreshold[idx] || 0.5;
         var l = lum[idx] || 0.5;
         var charIdx;
 
-        // If current noise level is higher than this cell's threshold, it remains noisy
         if (n > th) {
           charIdx = Math.floor(Math.random() * rampLen);
         } else {
           charIdx = correctK[idx] || 0;
-          // Small per-frame jitter that shrinks to 0 as n approaches 0
           if (jitterProb > 0.001 && Math.random() < jitterProb) {
             charIdx = Math.max(0, Math.min(rampLen - 1, charIdx + (Math.random() < 0.5 ? -1 : 1)));
           }
@@ -217,7 +229,7 @@
       }
     }
 
-    // Photo cross-fade: as n drops below 0.5, real photo cross-fades in from the ASCII layer
+    // Photo cross-fade: as n drops below 0.5, real cutout photo cross-fades in from the ASCII layer
     if (n < 0.5) {
       var photoAlpha = Math.max(0, Math.min(1, (0.5 - n) / 0.5));
       ctx.save();
@@ -245,23 +257,21 @@
       hint.style.opacity = '1';
     }
 
-    // Default state: pure ASCII noise
     progress = 0;
     targetProgress = 0;
 
-    // 1. Mouse hover: smooth forward reveal
+    // Hover interactions
     art.addEventListener('mouseenter', function() {
       clearTimeout(scrollRevealTimer);
       targetProgress = 1;
     });
 
-    // 2. Mouse leave: smooth reverse to ASCII
     art.addEventListener('mouseleave', function() {
       clearTimeout(scrollRevealTimer);
       targetProgress = 0;
     });
 
-    // 3. Touch tap toggle
+    // Touch tap toggle
     art.addEventListener('pointerdown', function(e) {
       if (e.pointerType === 'touch') {
         clearTimeout(scrollRevealTimer);
@@ -269,7 +279,7 @@
       }
     });
 
-    // 4. Scroll into view: only trigger when scrolled back into view after moving away
+    // Scroll into view auto-reveal
     var hasScrolledAway = false;
     window.addEventListener('scroll', function() {
       if (window.scrollY > 300) {
@@ -283,7 +293,6 @@
           if (entry.isIntersecting && entry.intersectionRatio > 0.4 && hasScrolledAway) {
             hasScrolledAway = false;
             targetProgress = 1;
-            // Reveal briefly then smoothly ease back to ASCII noise
             clearTimeout(scrollRevealTimer);
             scrollRevealTimer = setTimeout(function() {
               targetProgress = 0;
@@ -302,11 +311,18 @@
   }
 
   img.onload = startApp;
-  img.onerror = function(err) {
-    fail(err || new Error('Image photo.jpg failed to load'));
+  img.onerror = function() {
+    // If photo.png fails to load, gracefully fall back to photo.jpg
+    if (img.src.indexOf('photo.png') !== -1) {
+      console.warn('photo.png not found, falling back to photo.jpg');
+      img.src = 'photo.jpg';
+      return;
+    }
+    fail(new Error('Image failed to load: ' + img.src));
   };
 
-  img.src = 'photo.jpg';
+  // Try loading photo.png first
+  img.src = 'photo.png';
   if (img.complete && img.naturalWidth > 0) {
     startApp();
   }

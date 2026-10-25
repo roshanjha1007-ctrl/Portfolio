@@ -9,7 +9,7 @@ if (host) {
     if (!dirty) return rects;
     dirty = false;
     rects = [...document.querySelectorAll('.hero h1, .hero .tag p')].flatMap(el => { range.selectNodeContents(el); return [...range.getClientRects()]; });
-    rects.push(...[...document.querySelectorAll('.hero .links a, .hero .art')].map(el => el.getBoundingClientRect()));
+    rects.push(...[...document.querySelectorAll('.hero .links a, #portrait-backdrop')].map(el => el.getBoundingClientRect()));
     return rects;
   };
   const mark = () => { dirty = true; };

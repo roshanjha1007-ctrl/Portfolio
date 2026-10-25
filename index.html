@@ -143,12 +143,10 @@ h1 {
   height: min(70svh, 560px);
   aspect-ratio: 4/5;
   justify-self: end;
-  border-radius: 6px;
-  overflow: hidden;
-  background: var(--ascii-bg);
-  border: 1px solid var(--line);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
-  transition: background 0.3s ease;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 .art canvas, .art img {
   position: absolute;
@@ -260,18 +258,36 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
         <p>CSIT student, Google Student Ambassador and hackathon builder working across AI and product.</p>
       </div>
       <div class="links">
-        <a class="main" href="https://www.linkedin.com/in/roshanjha1007/" rel="me noopener">LinkedIn</a>
-        <a href="https://github.com/roshanjha1007-ctrl" rel="me noopener">GitHub</a>
-        <a href="https://www.skills.google/public_profiles/3627ba7f-261a-465a-b769-d2da955b5581" rel="me noopener">Google Skills</a>
-        <a href="https://www.credly.com/users/roshanjha1007/badges" rel="me noopener">Credly</a>
-        <a href="https://leetcode.com/u/roshanjha_1007/" rel="me noopener">LeetCode</a>
+        <a class="main magnetic" href="https://www.linkedin.com/in/roshanjha1007/" rel="me noopener">LinkedIn</a>
+        <a class="magnetic" href="https://github.com/roshanjha1007-ctrl" rel="me noopener">GitHub</a>
+        <a class="magnetic" href="https://www.skills.google/public_profiles/3627ba7f-261a-465a-b769-d2da955b5581" rel="me noopener">Google Skills</a>
+        <a class="magnetic" href="https://www.credly.com/users/roshanjha1007/badges" rel="me noopener">Credly</a>
+        <a class="magnetic" href="https://leetcode.com/u/roshanjha_1007/" rel="me noopener">LeetCode</a>
       </div>
     </div>
     <div class="art parallax-layer" id="art">
-      <canvas id="cv" aria-hidden="true"></canvas>
-      <img src="photo.jpg" alt="Portrait of Roshan Kumar Jha" width="640" height="800">
+      <div class="portrait-backdrop shape-arch" id="portrait-backdrop" aria-hidden="true"></div>
+      <div class="portrait-subject" id="portrait-subject">
+        <canvas id="cv" aria-hidden="true"></canvas>
+        <img src="photo.png" onerror="this.onerror=null;this.src='photo.jpg'" alt="Portrait of Roshan Kumar Jha" width="640" height="800">
+      </div>
       <span class="hint" id="hint">Diffusion reveal · Hover or tap</span>
+      <div class="shape-switcher" aria-label="Portrait frame shape switcher">
+        <button type="button" class="shape-btn active" data-shape="arch" title="Arch frame" aria-label="Arch shape">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M2 14V7a6 6 0 0 1 12 0v7H2z"/></svg>
+        </button>
+        <button type="button" class="shape-btn" data-shape="circle" title="Circle frame" aria-label="Circle shape">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><circle cx="8" cy="8" r="6"/></svg>
+        </button>
+        <button type="button" class="shape-btn" data-shape="hexagon" title="Hexagon frame" aria-label="Hexagon shape">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><polygon points="8,2 14,5.5 14,10.5 8,14 2,10.5 2,5.5"/></svg>
+        </button>
+        <button type="button" class="shape-btn" data-shape="pill" title="Pill frame" aria-label="Pill shape">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><rect x="4" y="2" width="8" height="12" rx="4"/></svg>
+        </button>
+      </div>
     </div>
+    <div class="progressive-blur" aria-hidden="true"></div>
   </header>
 
   <!-- REACT BITS: TextLoop scrolling marquee strip -->
@@ -309,8 +325,10 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
 
   <section id="projects">
     <h2>Projects</h2>
-    <div>
-      <div class="row featured-project">
+    <div class="bento-grid">
+      <!-- 1. HealthBridge: Featured Bento Card with Magic UI Border Beam -->
+      <div class="row project-card featured-project bento-card bento-featured">
+        <div class="border-beam" aria-hidden="true"></div>
         <div>
           <h3>HealthBridge</h3>
           <div class="pill-group">
@@ -323,29 +341,54 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
           <div class="project-stack">React · Express · MongoDB · LiveKit · Socket.io</div>
         </div>
         <div class="project-links">
-          <a class="btn-demo" href="https://health-bridge-frontend-rosy.vercel.app/login" target="_blank" rel="noopener">Live Demo <span class="arrow">↗</span></a>
+          <a class="btn-demo magnetic" href="https://health-bridge-frontend-rosy.vercel.app/login" target="_blank" rel="noopener noreferrer" aria-label="Open HealthBridge demo">Live Demo <span class="arrow">↗</span></a>
         </div>
       </div>
-      <div class="row">
-        <div><h3>NeuroNex prototype</h3><small>VIT Bhopal, 24-hour hackathon</small></div>
-        <p>A working neuromorphic computing prototype, built from zero knowledge of the domain in a single day and night.</p>
-        <a class="go" href="https://github.com/roshanjha1007-ctrl" rel="noopener">Repository</a>
+
+      <!-- 2. NeuroNex: Matching Bento Card -->
+      <div class="row project-card bento-card">
+        <div>
+          <h3>NeuroNex</h3>
+          <div class="pill-group">
+            <span class="pill">VIT Bhopal Hackathon</span>
+            <span class="pill">24-Hour Build</span>
+          </div>
+        </div>
+        <div>
+          <p class="project-desc">Working neuromorphic computing prototype, built from zero domain knowledge in a single day and night.</p>
+          <div class="project-stack">Python · TensorFlow · FastAPI · WebSockets · scikit-learn</div>
+        </div>
+        <div class="project-links">
+          <a class="btn-github magnetic" href="https://github.com/roshanjha1007-ctrl/synops_sec" target="_blank" rel="noopener noreferrer" aria-label="Open NeuroNex repository">GitHub <span class="arrow">↗</span></a>
+        </div>
       </div>
-      <a class="more" href="https://github.com/roshanjha1007-ctrl?tab=repositories" rel="noopener">See more on GitHub</a>
+
+      <a class="more magnetic" href="https://github.com/roshanjha1007-ctrl?tab=repositories" target="_blank" rel="noopener">See more on GitHub →</a>
     </div>
   </section>
 
   <section id="highlights">
     <h2>Highlights</h2>
-    <dl>
-      <div><dt>Google Student Ambassador 2026</dt><dd>Among the top ambassadors nationally, with the Celestial badge. Runs monthly Gemini product trials on campus.</dd></div>
-      <div><dt>AWS Student Builder Campus Leader</dt><dd>Selected as the college's Campus Leader (one seat per college) after qualifying interview.</dd></div>
-      <div><dt>Fund My Crazy, IIT Delhi</dt><dd>Invited as a Google Student Ambassador to attend and watch the event, where 10 ideas competed for a ₹1 Crore prize pool.</dd></div>
-      <div><dt>IDE Bootcamp 2026</dt><dd>Finalist.</dd></div>
-      <div><dt>Hackathons</dt><dd>Top 15 teams at the Dronpratimb college hackathon, participant at the national UIDAI Hackathon, and NeuroNex 2026 at VIT Bhopal.</dd></div>
-      <div><dt>Naukri Campus Young Turks 2026</dt><dd>Rank 24,965 out of 4 lakh+ students in Round 1, and qualified for Round 2 in the Coding track.</dd></div>
-      <div><dt>Credly</dt><dd>60+ verified skill badges across Google Cloud, AI/ML and software development.</dd></div>
-    </dl>
+    <div class="infinite-cards-wrap" id="infinite-cards-wrap" aria-label="Achievements carousel">
+      <div class="infinite-cards-track">
+        <!-- Set 1 -->
+        <div class="tilt-card"><div class="tilt-card-inner"><dt>Google Student Ambassador 2026</dt><dd>Among the top ambassadors nationally, with the Celestial badge. Runs monthly Gemini product trials on campus.</dd></div></div>
+        <div class="tilt-card"><div class="tilt-card-inner"><dt>AWS Student Builder Campus Leader</dt><dd>Selected as the college's Campus Leader (one seat per college) after qualifying interview.</dd></div></div>
+        <div class="tilt-card"><div class="tilt-card-inner"><dt>Fund My Crazy, IIT Delhi</dt><dd>Invited as a Google Student Ambassador to attend and watch the event, where 10 ideas competed for a ₹1 Crore prize pool.</dd></div></div>
+        <div class="tilt-card"><div class="tilt-card-inner"><dt>IDE Bootcamp 2026</dt><dd>Finalist.</dd></div></div>
+        <div class="tilt-card"><div class="tilt-card-inner"><dt>Hackathons</dt><dd>Top 15 teams at the Dronpratimb college hackathon, participant at the national UIDAI Hackathon, and NeuroNex 2026 at VIT Bhopal.</dd></div></div>
+        <div class="tilt-card"><div class="tilt-card-inner"><dt>Naukri Campus Young Turks 2026</dt><dd>Rank 24,965 out of 4 lakh+ students in Round 1, and qualified for Round 2 in the Coding track.</dd></div></div>
+        <div class="tilt-card"><div class="tilt-card-inner"><dt>Credly Badges</dt><dd>60+ verified skill badges across Google Cloud, AI/ML and software development.</dd></div></div>
+        <!-- Set 2 (for seamless infinite loop) -->
+        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Google Student Ambassador 2026</dt><dd>Among the top ambassadors nationally, with the Celestial badge. Runs monthly Gemini product trials on campus.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>AWS Student Builder Campus Leader</dt><dd>Selected as the college's Campus Leader (one seat per college) after qualifying interview.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Fund My Crazy, IIT Delhi</dt><dd>Invited as a Google Student Ambassador to attend and watch the event, where 10 ideas competed for a ₹1 Crore prize pool.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>IDE Bootcamp 2026</dt><dd>Finalist.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Hackathons</dt><dd>Top 15 teams at the Dronpratimb college hackathon, participant at the national UIDAI Hackathon, and NeuroNex 2026 at VIT Bhopal.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Naukri Campus Young Turks 2026</dt><dd>Rank 24,965 out of 4 lakh+ students in Round 1, and qualified for Round 2 in the Coding track.</dd></div></div>
+        <div class="tilt-card" aria-hidden="true"><div class="tilt-card-inner"><dt>Credly Badges</dt><dd>60+ verified skill badges across Google Cloud, AI/ML and software development.</dd></div></div>
+      </div>
+    </div>
   </section>
 
   <!-- REACT BITS: ParticleText in contact section -->
@@ -366,7 +409,10 @@ footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--m
     </div>
   </section>
 
-  <footer>Roshan Kumar Jha, CSIT student at Dronacharya Group of Institutions, Greater Noida.</footer>
+  <footer class="site-footer">
+    <div>Roshan Kumar Jha, CSIT student at Dronacharya Group of Institutions, Greater Noida.</div>
+    <div class="credits">UI inspired by React Bits, Magic UI, Motion Primitives, Aceternity UI, Uiverse and Asciify.</div>
+  </footer>
 </div>
 
 <script src="ascii.js"></script>
