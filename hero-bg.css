@@ -1,0 +1,3 @@
+/* Asciify hero background: full-bleed ground behind the hero, under all content. */
+body{position:relative}
+#hero-bg{position:absolute;top:0;left:0;right:0;height:max(100vh,640px);height:max(100svh,640px);z-index:-1}
